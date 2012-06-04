@@ -49,6 +49,8 @@ int mlx4_cleanup_upon_device_fatal = 0;
 #define PCI_VENDOR_ID_MELLANOX			0x15b3
 #endif
 
+int mlx4_trace = 0;
+
 #define HCA(v, d) VERBS_PCI_MATCH(PCI_VENDOR_ID_##v, d, NULL)
 static const struct verbs_match_ent hca_table[] = {
 	HCA(MELLANOX, 0x6340),	/* MT25408 "Hermon" SDR */
@@ -144,6 +146,10 @@ static void mlx4_read_env(void)
 	env_value = getenv("MLX4_DEVICE_FATAL_CLEANUP");
 	if (env_value)
 		mlx4_cleanup_upon_device_fatal = (strcmp(env_value, "0")) ? 1 : 0;
+
+	env_value = getenv("MLX4_TRACE");
+	if (env_value && (strcmp(env_value, "0")))
+		mlx4_trace = 1;
 }
 
 static int mlx4_map_internal_clock(struct mlx4_device *mdev,
