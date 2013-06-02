@@ -137,6 +137,8 @@ static const struct verbs_context_ops mlx4_ctx_ops = {
 	.open_xrcd = mlx4_open_xrcd,
 	.query_device_ex = mlx4_query_device_ex,
 	.query_rt_values = mlx4_query_rt_values,
+	.drv_set_legacy_xrc = mlx4_set_legacy_xrc,
+	.drv_get_legacy_xrc = mlx4_get_legacy_xrc,
 };
 
 static void mlx4_read_env(void)

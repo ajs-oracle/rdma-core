@@ -184,6 +184,7 @@ struct mlx4_srq {
 	__be32			       *db;
 	uint16_t			counter;
 	uint8_t				ext_srq;
+	struct ibv_srq_legacy *ibv_srq_legacy;
 };
 
 struct mlx4_wq {
@@ -428,5 +429,10 @@ int mlx4_post_wq_recv(struct ibv_wq *ibwq, struct ibv_recv_wr *wr,
 		      struct ibv_recv_wr **bad_wr);
 struct ibv_flow *mlx4_create_flow(struct ibv_qp *qp, struct ibv_flow_attr *flow_attr);
 int mlx4_destroy_flow(struct ibv_flow *flow_id);
+
+void *mlx4_get_legacy_xrc(struct ibv_srq *srq);
+void mlx4_set_legacy_xrc(struct ibv_srq *srq, void *legacy_xrc_srq);
+
+extern int mlx4_trace;
 
 #endif /* MLX4_H */

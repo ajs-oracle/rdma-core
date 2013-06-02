@@ -270,6 +270,7 @@ int mlx4_post_send(struct ibv_qp *ibqp, struct ibv_send_wr *wr,
 
 		switch (ibqp->qp_type) {
 		case IBV_QPT_XRC_SEND:
+		case IBV_QPT_XRC:
 			ctrl->srcrb_flags |= MLX4_REMOTE_SRQN_FLAGS(wr);
 			/* fall through */
 		case IBV_QPT_RC:
@@ -643,6 +644,7 @@ void mlx4_calc_sq_wqe_size(struct ibv_qp_cap *cap, enum ibv_qp_type type,
 		break;
 
 	case IBV_QPT_XRC_SEND:
+	case IBV_QPT_XRC:
 	case IBV_QPT_RC:
 		size += sizeof (struct mlx4_wqe_raddr_seg);
 		/*
@@ -745,6 +747,7 @@ void mlx4_set_sq_sizes(struct mlx4_qp *qp, struct ibv_qp_cap *cap,
 		break;
 
 	case IBV_QPT_XRC_SEND:
+	case IBV_QPT_XRC:
 	case IBV_QPT_UC:
 	case IBV_QPT_RC:
 		wqe_size -= sizeof (struct mlx4_wqe_raddr_seg);

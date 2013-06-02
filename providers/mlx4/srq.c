@@ -61,15 +61,18 @@ int mlx4_post_srq_recv(struct ibv_srq *ibsrq,
 		       struct ibv_recv_wr *wr,
 		       struct ibv_recv_wr **bad_wr)
 {
-	struct mlx4_srq *srq = to_msrq(ibsrq);
+	struct mlx4_srq *srq;
 	struct mlx4_wqe_srq_next_seg *next;
 	struct mlx4_wqe_data_seg *scat;
 	int err = 0;
 	int nreq;
 	int i;
 
-	pthread_spin_lock(&srq->lock);
+	if (ibsrq->handle == LEGACY_XRC_SRQ_HANDLE)
+		ibsrq = (struct ibv_srq *)(((struct ibv_srq_legacy *) ibsrq)->ibv_srq);
 
+	srq = to_msrq(ibsrq);
+	pthread_spin_lock(&srq->lock);
 	for (nreq = 0; wr; ++nreq, wr = wr->next) {
 		if (wr->num_sge > srq->max_gs) {
 			err = -1;
