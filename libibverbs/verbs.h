@@ -43,6 +43,7 @@
 #include <string.h>
 #include <linux/types.h>
 #include <stdint.h>
+#include <infiniband/ofa_verbs.h>
 
 #ifdef __cplusplus
 #include <limits>
@@ -811,6 +812,8 @@ enum ibv_qp_type {
 	IBV_QPT_RC = 2,
 	IBV_QPT_UC,
 	IBV_QPT_UD,
+	/* XRC compatible code */
+	IBV_QPT_XRC,
 	IBV_QPT_RAW_PACKET = 8,
 	IBV_QPT_XRC_SEND = 9,
 	IBV_QPT_XRC_RECV,
@@ -833,6 +836,8 @@ struct ibv_qp_init_attr {
 	struct ibv_qp_cap	cap;
 	enum ibv_qp_type	qp_type;
 	int			sq_sig_all;
+	/* Below is needed for backwards compatabile */
+	struct ibv_xrc_domain  *xrc_domain;
 };
 
 enum ibv_qp_init_attr_mask {
@@ -1669,6 +1674,8 @@ struct ibv_values_ex {
 
 struct verbs_context {
 	/*  "grows up" - new fields go here */
+	void * (*drv_get_legacy_xrc) (struct ibv_srq *ibv_srq);
+	void (*drv_set_legacy_xrc) (struct ibv_srq *ibv_srq, void *legacy_xrc);
 	struct ibv_pd *(*alloc_parent_domain)(struct ibv_context *context,
 					      struct ibv_parent_domain_init_attr *attr);
 	int (*dealloc_td)(struct ibv_td *td);

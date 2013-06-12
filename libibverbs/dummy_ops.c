@@ -236,6 +236,15 @@ static int detach_mcast(struct ibv_qp *qp, const union ibv_gid *gid,
 	return ENOSYS;
 }
 
+static void *drv_get_legacy_xrc(struct ibv_srq *srq)
+{
+	return NULL;
+}
+
+static void drv_set_legacy_xrc(struct ibv_srq *srq, void *legacy_xrc_srq)
+{
+}
+
 static int get_srq_num(struct ibv_srq *srq, uint32_t *srq_num)
 {
 	return ENOSYS;
@@ -408,6 +417,8 @@ const struct verbs_context_ops verbs_dummy_ops = {
 	destroy_srq,
 	destroy_wq,
 	detach_mcast,
+	drv_get_legacy_xrc,
+	drv_set_legacy_xrc,
 	get_srq_num,
 	modify_cq,
 	modify_qp,
@@ -493,6 +504,8 @@ void verbs_set_ops(struct verbs_context *vctx,
 	SET_OP(ctx, destroy_srq);
 	SET_OP(vctx, destroy_wq);
 	SET_OP(ctx, detach_mcast);
+	SET_OP(vctx, drv_get_legacy_xrc);
+	SET_OP(vctx, drv_set_legacy_xrc);
 	SET_OP(vctx, get_srq_num);
 	SET_OP(vctx, modify_cq);
 	SET_OP(ctx, modify_qp);

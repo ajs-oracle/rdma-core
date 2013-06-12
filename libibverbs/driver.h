@@ -229,6 +229,8 @@ struct verbs_context_ops {
 	int (*destroy_wq)(struct ibv_wq *wq);
 	int (*detach_mcast)(struct ibv_qp *qp, const union ibv_gid *gid,
 			    uint16_t lid);
+	void * (*drv_get_legacy_xrc) (struct ibv_srq *ibv_srq);
+	void (*drv_set_legacy_xrc) (struct ibv_srq *ibv_srq, void *legacy_xrc);
 	int (*get_srq_num)(struct ibv_srq *srq, uint32_t *srq_num);
 	int (*modify_cq)(struct ibv_cq *cq, struct ibv_modify_cq_attr *attr);
 	int (*modify_qp)(struct ibv_qp *qp, struct ibv_qp_attr *attr,
