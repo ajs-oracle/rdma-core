@@ -396,6 +396,8 @@ struct ibv_async_event {
 		struct ibv_srq *srq;
 		struct ibv_wq  *wq;
 		int		port_num;
+		/* For source compatible with Legacy API */
+		uint32_t	xrc_qp_num;
 	} element;
 	enum ibv_event_type	event_type;
 };
@@ -1040,10 +1042,13 @@ struct ibv_send_wr {
 		} ud;
 	} wr;
 	union {
-		struct {
-			uint32_t    remote_srqn;
-		} xrc;
-	} qp_type;
+		union {
+			struct {
+				uint32_t    remote_srqn;
+			} xrc;
+		} qp_type;
+		uint32_t		xrc_remote_srq_num;
+	};
 	union {
 		struct {
 			struct ibv_mw	*mw;
@@ -1109,6 +1114,24 @@ struct ibv_srq {
 	pthread_mutex_t		mutex;
 	pthread_cond_t		cond;
 	uint32_t		events_completed;
+
+	/* below are for source compatabilty with legacy XRC,
+	*   padding based on ibv_srq_legacy.
+	*/
+	uint32_t		xrc_srq_num_bin_compat_padding;
+	struct ibv_xrc_domain	*xrc_domain_bin_compat_padding;
+	struct ibv_cq	*xrc_cq_bin_compat_padding;
+	void		*ibv_srq_padding;
+
+	/* legacy fields */
+	uint32_t		xrc_srq_num;
+	struct ibv_xrc_domain	*xrc_domain;
+	struct ibv_cq		*xrc_cq;
+};
+
+/* Not in use in new API, needed for compilation as part of source compat layer */
+enum ibv_event_flags {
+	IBV_XRC_QP_EVENT_FLAG = 0x80000000,
 };
 
 /*
