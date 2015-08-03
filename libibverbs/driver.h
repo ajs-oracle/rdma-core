@@ -220,6 +220,7 @@ struct verbs_context_ops {
 	int (*dealloc_pd)(struct ibv_pd *pd);
 	int (*dealloc_td)(struct ibv_td *td);
 	int (*dereg_mr)(struct ibv_mr *mr);
+	int (*dereg_mr_relaxed)(struct ibv_mr *mr);
 	int (*destroy_ah)(struct ibv_ah *ah);
 	int (*destroy_cq)(struct ibv_cq *cq);
 	int (*destroy_flow)(struct ibv_flow *flow);
@@ -231,6 +232,7 @@ struct verbs_context_ops {
 			    uint16_t lid);
 	void * (*drv_get_legacy_xrc) (struct ibv_srq *ibv_srq);
 	void (*drv_set_legacy_xrc) (struct ibv_srq *ibv_srq, void *legacy_xrc);
+	int (*flush_relaxed_mr)(struct ibv_pd *pd);
 	int (*get_srq_num)(struct ibv_srq *srq, uint32_t *srq_num);
 	int (*modify_cq)(struct ibv_cq *cq, struct ibv_modify_cq_attr *attr);
 	int (*modify_qp)(struct ibv_qp *qp, struct ibv_qp_attr *attr,
@@ -267,6 +269,8 @@ struct verbs_context_ops {
 	int (*query_srq)(struct ibv_srq *srq, struct ibv_srq_attr *srq_attr);
 	struct ibv_mr *(*reg_mr)(struct ibv_pd *pd, void *addr, size_t length,
 				 int access);
+	struct ibv_mr *(*reg_mr_relaxed)(struct ibv_pd *pd, void *addr, size_t length,
+					 int access);
 	int (*req_notify_cq)(struct ibv_cq *cq, int solicited_only);
 	int (*rereg_mr)(struct ibv_mr *mr, int flags, struct ibv_pd *pd,
 			void *addr, size_t length, int access);
@@ -382,6 +386,14 @@ int ibv_cmd_alloc_mw(struct ibv_pd *pd, enum ibv_mw_type type,
 		     struct ib_uverbs_alloc_mw_resp *resp, size_t resp_size);
 int ibv_cmd_dealloc_mw(struct ibv_mw *mw,
 		       struct ibv_dealloc_mw *cmd, size_t cmd_size);
+#define IBV_CMD_REG_MR_RELAXED_HAS_RESP_PARAMS
+int ibv_cmd_reg_mr_relaxed(struct ibv_pd *pd, void *addr, size_t length,
+			   uint64_t hca_va, int access,
+			   struct ibv_mr *mr, struct ibv_reg_mr *cmd,
+			   size_t cmd_size,
+			   struct ib_uverbs_reg_mr_resp *resp, size_t resp_size);
+int ibv_cmd_dereg_mr_relaxed(struct ibv_mr *mr);
+int ibv_cmd_flush_relaxed_mr(struct ibv_pd *pd);
 int ibv_cmd_create_cq(struct ibv_context *context, int cqe,
 		      struct ibv_comp_channel *channel,
 		      int comp_vector, struct ibv_cq *cq,

@@ -195,6 +195,11 @@ static int dereg_mr(struct ibv_mr *mr)
 	return ENOSYS;
 }
 
+static int dereg_mr_relaxed(struct ibv_mr *mr)
+{
+	return ENOSYS;
+}
+
 static int destroy_ah(struct ibv_ah *ah)
 {
 	return ENOSYS;
@@ -243,6 +248,11 @@ static void *drv_get_legacy_xrc(struct ibv_srq *srq)
 
 static void drv_set_legacy_xrc(struct ibv_srq *srq, void *legacy_xrc_srq)
 {
+}
+
+static int flush_relaxed_mr(struct ibv_pd *pd)
+{
+	return ENOSYS;
 }
 
 static int get_srq_num(struct ibv_srq *srq, uint32_t *srq_num)
@@ -357,6 +367,13 @@ static struct ibv_mr *reg_mr(struct ibv_pd *pd, void *addr, size_t length,
 	return NULL;
 }
 
+static struct ibv_mr *reg_mr_relaxed(struct ibv_pd *pd, void *addr, size_t length,
+			     int access)
+{
+	errno = ENOSYS;
+	return NULL;
+}
+
 static int req_notify_cq(struct ibv_cq *cq, int solicited_only)
 {
 	return ENOSYS;
@@ -409,6 +426,7 @@ const struct verbs_context_ops verbs_dummy_ops = {
 	dealloc_pd,
 	dealloc_td,
 	dereg_mr,
+	dereg_mr_relaxed,
 	destroy_ah,
 	destroy_cq,
 	destroy_flow,
@@ -419,6 +437,7 @@ const struct verbs_context_ops verbs_dummy_ops = {
 	detach_mcast,
 	drv_get_legacy_xrc,
 	drv_set_legacy_xrc,
+	flush_relaxed_mr,
 	get_srq_num,
 	modify_cq,
 	modify_qp,
@@ -438,6 +457,7 @@ const struct verbs_context_ops verbs_dummy_ops = {
 	query_rt_values,
 	query_srq,
 	reg_mr,
+	reg_mr_relaxed,
 	req_notify_cq,
 	rereg_mr,
 	resize_cq,
@@ -496,6 +516,7 @@ void verbs_set_ops(struct verbs_context *vctx,
 	SET_OP(ctx, dealloc_pd);
 	SET_OP(vctx, dealloc_td);
 	SET_OP(ctx, dereg_mr);
+	SET_OP(ctx, dereg_mr_relaxed);
 	SET_OP(ctx, destroy_ah);
 	SET_OP(ctx, destroy_cq);
 	SET_OP2(vctx, ibv_destroy_flow, destroy_flow);
@@ -506,6 +527,7 @@ void verbs_set_ops(struct verbs_context *vctx,
 	SET_OP(ctx, detach_mcast);
 	SET_OP(vctx, drv_get_legacy_xrc);
 	SET_OP(vctx, drv_set_legacy_xrc);
+	SET_OP(ctx, flush_relaxed_mr);
 	SET_OP(vctx, get_srq_num);
 	SET_OP(vctx, modify_cq);
 	SET_OP(ctx, modify_qp);
@@ -525,6 +547,7 @@ void verbs_set_ops(struct verbs_context *vctx,
 	SET_OP(vctx, query_rt_values);
 	SET_OP(ctx, query_srq);
 	SET_OP(ctx, reg_mr);
+	SET_OP(ctx, reg_mr_relaxed);
 	SET_OP(ctx, req_notify_cq);
 	SET_OP(ctx, rereg_mr);
 	SET_OP(ctx, resize_cq);

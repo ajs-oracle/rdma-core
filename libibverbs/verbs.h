@@ -1632,6 +1632,11 @@ struct ibv_context_ops {
 	struct ibv_shpd *	(*alloc_shpd)(struct ibv_pd *pd, uint64_t share_key, struct ibv_shpd *shpd);
 	struct ibv_pd *		(*share_pd)(struct ibv_context *context, struct ibv_shpd *shpd, uint64_t share_key);
 #endif /* !WITHOUT_ORACLE_EXTENSIONS */
+	struct ibv_mr *         (*reg_mr_relaxed)(struct ibv_pd *pd,
+						  void *addr, size_t length,
+						  int access);
+	int                     (*dereg_mr_relaxed)(struct ibv_mr *mr);
+	int                     (*flush_relaxed_mr)(struct ibv_pd *pd);
 };
 
 struct ibv_context {
@@ -1955,9 +1960,25 @@ int ibv_rereg_mr(struct ibv_mr *mr, int flags,
 		 struct ibv_pd *pd, void *addr,
 		 size_t length, int access);
 /**
+ * ibv_reg_mr_relaxed - Register a memory region
+ */
+struct ibv_mr *ibv_reg_mr_relaxed(struct ibv_pd *pd, void *addr,
+				  size_t length, int access);
+
+/**
  * ibv_dereg_mr - Deregister a memory region
  */
 int ibv_dereg_mr(struct ibv_mr *mr);
+
+/**
+ * ibv_dereg_mr_relaxed - Deregister a memory region
+ */
+int ibv_dereg_mr_relaxed(struct ibv_mr *mr);
+
+/**
+ * ibv_flush_relaxed_mr - Flush all free mr's in the protection domain
+ */
+int ibv_flush_relaxed_mr(struct ibv_pd *pd);
 
 /**
  * ibv_alloc_mw - Allocate a memory window

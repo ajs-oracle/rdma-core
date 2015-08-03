@@ -183,6 +183,14 @@ struct ibv_dealloc_mw {
 	__u32 reserved;
 };
 
+struct ibv_flush_relaxed_mr{
+	struct ib_uverbs_cmd_hdr hdr;
+	__u32 command;
+	__u16 in_words;
+	__u16 out_words;
+	__u32 pd_handle;
+};
+
 struct ibv_create_comp_channel {
 	struct ib_uverbs_cmd_hdr hdr;
 	__u64 response;
