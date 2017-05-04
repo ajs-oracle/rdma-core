@@ -469,7 +469,8 @@ int mlx4_post_send(struct ibv_qp *ibqp, struct ibv_send_wr *wr,
 out:
 	ctx = to_mctx(ibqp->context);
 
-	if (nreq == 1 && inl && size > 1 && size <= ctx->bf_buf_size / 16) {
+	if (!ctx->shut_up_bf && nreq == 1 && inl && size > 1 &&
+	    size <= ctx->bf_buf_size / 16) {
 		ctrl->owner_opcode |= htobe32((qp->sq.head & 0xffff) << 8);
 
 		ctrl->bf_qpn |= qp->doorbell_qpn;

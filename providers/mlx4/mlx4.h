@@ -107,6 +107,7 @@ struct mlx4_context {
 	int				bf_buf_size;
 	int				bf_offset;
 	pthread_spinlock_t		bf_lock;
+	int				shut_up_bf;
 
 	struct {
 		struct mlx4_qp	      **table;
