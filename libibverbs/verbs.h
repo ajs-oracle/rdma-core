@@ -509,6 +509,11 @@ struct ibv_xrcd {
 	struct ibv_context     *context;
 };
 
+struct ibv_shpd {
+	uint32_t                handle;
+};
+
+
 enum ibv_rereg_mr_flags {
 	IBV_REREG_MR_CHANGE_TRANSLATION	= (1 << 0),
 	IBV_REREG_MR_CHANGE_PD		= (1 << 1),
@@ -1385,6 +1390,10 @@ struct ibv_context_ops {
 	int			(*detach_mcast)(struct ibv_qp *qp, const union ibv_gid *gid,
 						uint16_t lid);
 	void			(*async_event)(struct ibv_async_event *event);
+	struct ibv_shpd *       (*alloc_shpd)(struct ibv_pd *pd, uint64_t share_key,
+					      struct ibv_shpd *shpd);
+	struct ibv_pd *         (*share_pd)(struct ibv_context *context, struct ibv_shpd *shpd,
+					    uint64_t share_key);
 };
 
 struct ibv_context {
@@ -1609,6 +1618,18 @@ int ibv_query_pkey(struct ibv_context *context, uint8_t port_num,
  * ibv_alloc_pd - Allocate a protection domain
  */
 struct ibv_pd *ibv_alloc_pd(struct ibv_context *context);
+
+/**
+ * ibv_alloc_shpd - Mark a pd as shareable & return shareable pd
+ */
+struct ibv_shpd *ibv_alloc_shpd(struct ibv_pd *pd, uint64_t share_key,
+				struct ibv_shpd *shpd);
+
+/**
+* ibv_share_pd - allocate a process private pd from shared pd
+*/
+struct ibv_pd *ibv_share_pd(struct ibv_context *context,
+			    struct ibv_shpd *shpd, uint64_t share_key);
 
 /**
  * ibv_dealloc_pd - Free a protection domain

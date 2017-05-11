@@ -16,6 +16,8 @@ IBVERBS_1.0 {
 		ibv_query_pkey;
 		ibv_alloc_pd;
 		ibv_dealloc_pd;
+		ibv_alloc_shpd;
+		ibv_share_pd;
 		ibv_reg_mr;
 		ibv_dereg_mr;
 		ibv_create_comp_channel;
@@ -91,6 +93,8 @@ IBVERBS_PRIVATE_13 {
 		/* These historical symbols are now private to libibverbs */
 		ibv_cmd_alloc_mw;
 		ibv_cmd_alloc_pd;
+		ibv_cmd_alloc_shpd;
+		ibv_cmd_share_pd;
 		ibv_cmd_attach_mcast;
 		ibv_cmd_close_xrcd;
 		ibv_cmd_create_ah;
