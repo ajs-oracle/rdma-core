@@ -113,6 +113,12 @@ struct mlx5_alloc_pd_resp {
 	__u32				pdn;
 };
 
+struct mlx5_share_pd_resp {
+	struct ibv_share_pd_resp	ibv_resp;
+	__u32				pdn;
+	__u32				reserved;
+};
+
 struct mlx5_create_cq {
 	struct ibv_create_cq		ibv_cmd;
 	__u64				buf_addr;
