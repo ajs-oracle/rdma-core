@@ -48,6 +48,7 @@
 #include <sys/ipc.h>
 #include <sys/shm.h>
 #include <errno.h>
+#include <signal.h>
 
 #include "pingpong.h"
 
@@ -451,12 +452,21 @@ static struct pingpong_context *pp_init_ctx(struct ibv_device *ib_dev, int size,
 	} else {
 		if (pp_waitfor_shm(ctx)) {
 			fprintf(stderr, "Couldn't get shm working\n");
+			if (shmdt(ctx->shm))
+				fprintf(stderr, "Couldn't detach shm\n");
 			return NULL;
 		}
 
 		ctx->shpd = ctx->shm->shpd;
 		/* create pd from shared pd information we have */
 		ctx->pd = ibv_share_pd(ctx->context, &ctx->shpd, mypass);
+
+		if (ctx->pd == NULL) {
+			fprintf(stderr, "ibv_share_pd failed\n");
+			if (shmdt(ctx->shm))
+				fprintf(stderr, "Couldn't detach shm\n");
+			return NULL;
+		}
 
 		/* NOTE: some parts of ibv_mr struct is invalid in client process.
 		   only rkey & lkey is relevant
@@ -478,6 +488,8 @@ static struct pingpong_context *pp_init_ctx(struct ibv_device *ib_dev, int size,
 				ctx->channel, 0);
 	if (!ctx->cq) {
 		fprintf(stderr, "Couldn't create CQ\n");
+		if (shmdt(ctx->shm))
+			fprintf(stderr, "Couldn't detach shm\n");
 		return NULL;
 	}
 
@@ -629,6 +641,26 @@ static void usage(const char *argv0)
 	printf("  -S, --shm-key=<shm key> shared memory key for the test (default 18515)\n");
 }
 
+
+static int pp_delete_shm(struct pingpong_context *ctx);
+static void pp_shpd_signal_handler(int);
+
+struct pingpong_context *context = NULL;
+
+static void pp_shpd_signal_handler(int sig)
+{
+	signal(sig, SIG_IGN);
+
+	if (context == NULL)
+                exit(0);
+
+	if (context->is_server) {
+		if (pp_delete_shm(context))
+			fprintf(stderr, "couldn't destroy shared memory\n");
+	}
+        exit(0);
+}
+
 int main(int argc, char *argv[])
 {
 	struct ibv_device      **dev_list;
@@ -655,6 +687,8 @@ int main(int argc, char *argv[])
 	key_t			 key = 18515;
 
 	srand48(getpid() * time(NULL));
+
+	signal(SIGINT, pp_shpd_signal_handler);
 
 	while (1) {
 		int c;
@@ -777,6 +811,9 @@ int main(int argc, char *argv[])
 	ctx = pp_init_ctx(ib_dev, size, rx_depth, ib_port, use_event, key, !servername);
 	if (!ctx)
 		return 1;
+
+	/* save the context to enable clean in the signal handler */
+	context = ctx;
 
 	routs = pp_post_recv(ctx, ctx->rx_depth);
 	if (routs < ctx->rx_depth) {
