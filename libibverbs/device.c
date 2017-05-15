@@ -269,6 +269,8 @@ int __ibv_get_async_event(struct ibv_context *context,
 			  struct ibv_async_event *event)
 {
 	struct ibv_kern_async_event ev;
+	struct verbs_context *vctx;
+	struct ibv_srq_legacy *ibv_srq_legacy = NULL;
 
 	if (read(context->async_fd, &ev, sizeof ev) != sizeof ev)
 		return -1;
@@ -293,7 +295,15 @@ int __ibv_get_async_event(struct ibv_context *context,
 
 	case IBV_EVENT_SRQ_ERR:
 	case IBV_EVENT_SRQ_LIMIT_REACHED:
-		event->element.srq = (void *) (uintptr_t) ev.element;
+		vctx = verbs_get_ctx_op(context, drv_get_legacy_xrc);
+		if (vctx)
+			/* ev.elemant is ibv_srq comes from the kernel, in case there is leagcy one
+			 * it should be returened instead.
+			 */
+			ibv_srq_legacy = vctx->drv_get_legacy_xrc((void *) (uintptr_t) ev.element);
+
+		event->element.srq = (ibv_srq_legacy) ? (void *)ibv_srq_legacy :
+						(void *) (uintptr_t) ev.element;
 		break;
 
 	case IBV_EVENT_WQ_FATAL:
@@ -349,9 +359,20 @@ void __ibv_ack_async_event(struct ibv_async_event *event)
 	case IBV_EVENT_SRQ_LIMIT_REACHED:
 	{
 		struct ibv_srq *srq = event->element.srq;
+		struct ibv_srq_legacy *ibv_srq_legacy = NULL;
 
+		if (srq->handle == LEGACY_XRC_SRQ_HANDLE) {
+			struct ibv_srq_legacy *ibv_srq_legacy =
+					(struct ibv_srq_legacy *) srq;
+			srq = ibv_srq_legacy->ibv_srq;
+		}
+
+		/* We should use here the internal mutx/cond even in legacy mode */
 		pthread_mutex_lock(&srq->mutex);
 		++srq->events_completed;
+		if (ibv_srq_legacy)
+			/* In case we use legacy srq need to increment on both out & in */
+			++ibv_srq_legacy->events_completed;
 		pthread_cond_signal(&srq->cond);
 		pthread_mutex_unlock(&srq->mutex);
 

@@ -41,6 +41,7 @@
 #include <stddef.h>
 #include <errno.h>
 #include <string.h>
+#include <infiniband/ofa_verbs.h>
 
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
@@ -727,6 +728,8 @@ enum ibv_qp_type {
 	IBV_QPT_RC = 2,
 	IBV_QPT_UC,
 	IBV_QPT_UD,
+	/* XRC compatible code */
+	IBV_QPT_XRC,
 	IBV_QPT_RAW_PACKET = 8,
 	IBV_QPT_XRC_SEND = 9,
 	IBV_QPT_XRC_RECV
@@ -748,6 +751,8 @@ struct ibv_qp_init_attr {
 	struct ibv_qp_cap	cap;
 	enum ibv_qp_type	qp_type;
 	int			sq_sig_all;
+	/* Below is needed for backwards compatabile */
+	struct ibv_xrc_domain  *xrc_domain;
 };
 
 enum ibv_qp_init_attr_mask {
@@ -1453,6 +1458,8 @@ enum verbs_context_mask {
 
 struct verbs_context {
 	/*  "grows up" - new fields go here */
+	void * (*drv_get_legacy_xrc) (struct ibv_srq *ibv_srq);
+	void (*drv_set_legacy_xrc) (struct ibv_srq *ibv_srq, void *legacy_xrc);
 	int (*destroy_rwq_ind_table)(struct ibv_rwq_ind_table *rwq_ind_table);
 	struct ibv_rwq_ind_table *(*create_rwq_ind_table)(struct ibv_context *context,
 							  struct ibv_rwq_ind_table_init_attr *init_attr);
