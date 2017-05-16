@@ -1142,7 +1142,7 @@ static int xrc_qp_compare(const void *a, const void *b)
 
 }
 
-static struct ibv_qp *ibv_find_xrc_qp(uint32_t qpn)
+struct ibv_qp *ibv_find_xrc_qp(uint32_t qpn)
 {
 	uint32_t **qpn_ptr;
 	struct ibv_qp *ibv_qp = NULL;

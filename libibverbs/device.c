@@ -271,6 +271,7 @@ int __ibv_get_async_event(struct ibv_context *context,
 	struct ibv_kern_async_event ev;
 	struct verbs_context *vctx;
 	struct ibv_srq_legacy *ibv_srq_legacy = NULL;
+	struct ibv_qp *qp;
 
 	if (read(context->async_fd, &ev, sizeof ev) != sizeof ev)
 		return -1;
@@ -291,6 +292,13 @@ int __ibv_get_async_event(struct ibv_context *context,
 	case IBV_EVENT_PATH_MIG_ERR:
 	case IBV_EVENT_QP_LAST_WQE_REACHED:
 		event->element.qp = (void *) (uintptr_t) ev.element;
+		qp = ibv_find_xrc_qp(event->element.qp->qp_num);
+		if (qp) {
+			/* This is XRC reciever QP created by the legacy API */
+			event->event_type |= IBV_XRC_QP_EVENT_FLAG;
+			event->element.qp = NULL;
+			event->element.xrc_qp_num = qp->qp_num;
+		}
 		break;
 
 	case IBV_EVENT_SRQ_ERR:
@@ -323,6 +331,13 @@ default_symver(__ibv_get_async_event, ibv_get_async_event);
 
 void __ibv_ack_async_event(struct ibv_async_event *event)
 {
+	int is_legacy_xrc = 0;
+
+	if (event->event_type & IBV_XRC_QP_EVENT_FLAG) {
+		event->event_type ^= IBV_XRC_QP_EVENT_FLAG;
+		is_legacy_xrc = 1;
+	}
+
 	switch (event->event_type) {
 	case IBV_EVENT_CQ_ERR:
 	{
@@ -346,6 +361,19 @@ void __ibv_ack_async_event(struct ibv_async_event *event)
 	case IBV_EVENT_QP_LAST_WQE_REACHED:
 	{
 		struct ibv_qp *qp = event->element.qp;
+
+		if (is_legacy_xrc) {
+		/* Looking for ibv_qp for this XRC reciever QPN */
+			qp = ibv_find_xrc_qp(event->element.xrc_qp_num);
+			/* Even if found a qp making sure that it matches, would like
+			* to prevent rare case while pointer value was matched to qp number.
+			*/
+			if (!qp || qp->qp_num != event->element.xrc_qp_num) {
+				fprintf(stderr, PFX "Warning: ibv_ack_async_event, XRC qpn=%u wasn't found\n",
+					event->element.xrc_qp_num);
+				return;
+			}
+		}
 
 		pthread_mutex_lock(&qp->mutex);
 		++qp->events_completed;
