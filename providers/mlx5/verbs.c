@@ -570,6 +570,21 @@ int mlx5_destroy_cq(struct ibv_cq *cq)
 	return 0;
 }
 
+void *mlx5_get_legacy_xrc(struct ibv_srq *srq)
+{
+	struct mlx5_srq *msrq = to_msrq(srq);
+
+	return msrq->ibv_srq_legacy;
+}
+
+void mlx5_set_legacy_xrc(struct ibv_srq *srq, void *legacy_xrc_srq)
+{
+	struct mlx5_srq *msrq = to_msrq(srq);
+
+	msrq->ibv_srq_legacy = legacy_xrc_srq;
+	return;
+}
+
 struct ibv_srq *mlx5_create_srq(struct ibv_pd *pd,
 				struct ibv_srq_init_attr *attr)
 {
@@ -680,6 +695,9 @@ int mlx5_modify_srq(struct ibv_srq *srq,
 {
 	struct ibv_modify_srq cmd;
 
+	if (srq->handle == LEGACY_XRC_SRQ_HANDLE)
+		srq = (struct ibv_srq *)(((struct ibv_srq_legacy *) srq)->ibv_srq);
+
 	return ibv_cmd_modify_srq(srq, attr, attr_mask, &cmd, sizeof cmd);
 }
 
@@ -687,6 +705,9 @@ int mlx5_query_srq(struct ibv_srq *srq,
 		    struct ibv_srq_attr *attr)
 {
 	struct ibv_query_srq cmd;
+
+	if (srq->handle == LEGACY_XRC_SRQ_HANDLE)
+		srq = (struct ibv_srq *)(((struct ibv_srq_legacy *) srq)->ibv_srq);
 
 	return ibv_cmd_query_srq(srq, attr, &cmd, sizeof cmd);
 }
@@ -696,10 +717,18 @@ int mlx5_destroy_srq(struct ibv_srq *srq)
 	int ret;
 	struct mlx5_srq *msrq = to_msrq(srq);
 	struct mlx5_context *ctx = to_mctx(srq->context);
+	struct ibv_srq *legacy_srq = NULL;
+
+	if (srq->handle == LEGACY_XRC_SRQ_HANDLE) {
+		legacy_srq = srq;
+		srq = (struct ibv_srq *)(((struct ibv_srq_legacy *) srq)->ibv_srq);
+	}
 
 	ret = ibv_cmd_destroy_srq(srq);
 	if (ret)
 		return ret;
+	else if (legacy_srq)
+		free(legacy_srq);
 
 	if (ctx->cqe_version && msrq->rsc.type == MLX5_RSC_TYPE_XSRQ)
 		mlx5_clear_uidx(ctx, msrq->rsc.rsn);
@@ -746,6 +775,7 @@ static int sq_overhead(enum ibv_qp_type	qp_type)
 		SWITCH_FALLTHROUGH;
 
 	case IBV_QPT_XRC_RECV:
+	case IBV_QPT_XRC:
 		size = max(size, sizeof(struct mlx5_wqe_ctrl_seg) +
 			   sizeof(struct mlx5_wqe_xrc_seg) +
 			   sizeof(struct mlx5_wqe_raddr_seg));
@@ -1207,6 +1237,10 @@ static struct ibv_qp *create_qp(struct ibv_context *context,
 	    (attr->qp_type != IBV_QPT_RAW_PACKET))
 		return NULL;
 
+	if (attr->qp_type == IBV_QPT_XRC && attr->recv_cq &&
+		attr->cap.max_recv_wr > 0 && mlx5_trace)
+		fprintf(stderr, PFX "Warning: Legacy XRC sender should not use a recieve cq\n");
+
 	qp = calloc(1, sizeof(*qp));
 	if (!qp) {
 		mlx5_dbg(fp, MLX5_DBG_QP, "\n");
@@ -1373,13 +1407,23 @@ struct ibv_qp *mlx5_create_qp(struct ibv_pd *pd,
 	struct ibv_qp *qp;
 	struct ibv_qp_init_attr_ex attrx;
 
-	memset(&attrx, 0, sizeof(attrx));
-	memcpy(&attrx, attr, sizeof(*attr));
+	/* We should copy below only the shared fields excluding the xrc_domain field.
+	 * Otherwise we may have an ABI issue with applications that were compiled
+	 * without the xrc_domain field. The xrc_domain any way has no affect in
+	 * the sender side, no need to copy in/out.
+	 */
+	int init_attr_base_size = offsetof(struct ibv_qp_init_attr,
+			xrc_domain);
+
+	memset(&attrx, 0, sizeof(attrx)); /* pre-set all fields to zero */
+	/* copying only shared fields */
+	memcpy(&attrx, attr, init_attr_base_size);
+
 	attrx.comp_mask = IBV_QP_INIT_ATTR_PD;
 	attrx.pd = pd;
 	qp = create_qp(pd->context, &attrx);
 	if (qp)
-		memcpy(attr, &attrx, sizeof(*attr));
+		memcpy(attr, &attrx, init_attr_base_size);
 
 	return qp;
 }
