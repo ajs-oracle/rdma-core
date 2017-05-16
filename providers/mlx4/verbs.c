@@ -949,13 +949,21 @@ struct ibv_qp *mlx4_create_qp(struct ibv_pd *pd, struct ibv_qp_init_attr *attr)
 {
 	struct ibv_qp_init_attr_ex attr_ex;
 	struct ibv_qp *qp;
+	/* We should copy below only the shared fields excluding the xrc_domain field.
+	 * Otherwise we may have an ABI issue with applications that were compiled
+	 * without the xrc_domain field. The xrc_domain any way has no affect in
+	 * the sender side, no need to copy in/out.
+	 */
+	int init_attr_base_size = offsetof(struct ibv_qp_init_attr,
+		xrc_domain);
 
-	memcpy(&attr_ex, attr, sizeof *attr);
+	/* copying only shared fields */
+	memcpy(&attr_ex, attr, init_attr_base_size);
 	attr_ex.comp_mask = IBV_QP_INIT_ATTR_PD;
 	attr_ex.pd = pd;
 	qp = mlx4_create_qp_ex(pd->context, &attr_ex);
 	if (qp)
-		memcpy(attr, &attr_ex, sizeof *attr);
+		memcpy(attr, &attr_ex, init_attr_base_size);
 	return qp;
 }
 
