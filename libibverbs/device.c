@@ -387,7 +387,6 @@ void __ibv_ack_async_event(struct ibv_async_event *event)
 	case IBV_EVENT_SRQ_LIMIT_REACHED:
 	{
 		struct ibv_srq *srq = event->element.srq;
-		struct ibv_srq_legacy *ibv_srq_legacy = NULL;
 
 		if (srq->handle == LEGACY_XRC_SRQ_HANDLE) {
 			struct ibv_srq_legacy *ibv_srq_legacy =
@@ -398,9 +397,6 @@ void __ibv_ack_async_event(struct ibv_async_event *event)
 		/* We should use here the internal mutx/cond even in legacy mode */
 		pthread_mutex_lock(&srq->mutex);
 		++srq->events_completed;
-		if (ibv_srq_legacy)
-			/* In case we use legacy srq need to increment on both out & in */
-			++ibv_srq_legacy->events_completed;
 		pthread_cond_signal(&srq->cond);
 		pthread_mutex_unlock(&srq->mutex);
 
