@@ -968,6 +968,7 @@ struct ibv_qp *mlx4_create_qp(struct ibv_pd *pd, struct ibv_qp_init_attr *attr)
 	int init_attr_base_size = offsetof(struct ibv_qp_init_attr,
 		xrc_domain);
 
+	memset(&attr_ex, 0, sizeof(attr_ex)); /* pre-set all fields to zero */
 	/* copying only shared fields */
 	memcpy(&attr_ex, attr, init_attr_base_size);
 	attr_ex.comp_mask = IBV_QP_INIT_ATTR_PD;
