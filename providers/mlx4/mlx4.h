@@ -115,6 +115,8 @@ enum {
 	MLX4_CQE_OPCODE_RESIZE		= 0x16,
 };
 
+extern int mlx4_trace;
+
 struct mlx4_device {
 	struct verbs_device		verbs_dev;
 	int				page_size;
