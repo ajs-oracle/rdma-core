@@ -814,6 +814,7 @@ static inline int _mlx5_post_send(struct ibv_qp *ibqp, struct ibv_send_wr *wr,
 
 		switch (ibqp->qp_type) {
 		case IBV_QPT_XRC_SEND:
+		case IBV_QPT_XRC:
 			if (unlikely(wr->opcode != IBV_WR_BIND_MW &&
 				     wr->opcode != IBV_WR_LOCAL_INV)) {
 				xrc = seg;

@@ -206,7 +206,10 @@ enum {
 struct mlx5_resource {
 	enum mlx5_rsc_type	type;
 	uint32_t		rsn;
+	void			*metadata;
 };
+
+extern int mlx5_trace;
 
 struct mlx5_device {
 	struct verbs_device	verbs_dev;
@@ -422,6 +425,7 @@ struct mlx5_srq {
 	uint16_t			counter;
 	int				wq_sig;
 	struct ibv_qp		       *cmd_qp;
+	struct ibv_srq_legacy	       *ibv_srq_legacy;
 	struct mlx5_tag_entry	       *tm_list; /* vector of all tags */
 	struct mlx5_tag_entry	       *tm_head; /* queue of free tags */
 	struct mlx5_tag_entry	       *tm_tail;
@@ -908,5 +912,8 @@ static inline uint8_t calc_sig(void *wqe, int size)
 
 	return ~res;
 }
+
+void *mlx5_get_legacy_xrc(struct ibv_srq *srq);
+void mlx5_set_legacy_xrc(struct ibv_srq *srq, void *legacy_xrc_srq);
 
 #endif /* MLX5_H */

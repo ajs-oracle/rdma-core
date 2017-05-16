@@ -78,6 +78,7 @@ static const struct verbs_match_ent hca_table[] = {
 	{}
 };
 
+int mlx5_trace = 0;
 uint32_t mlx5_debug_mask = 0;
 int mlx5_freeze_on_error_cqe;
 
@@ -138,6 +139,8 @@ static const struct verbs_context_ops mlx5_ctx_common_ops = {
 	.post_srq_ops = mlx5_post_srq_ops,
 	.query_device_ex = mlx5_query_device_ex,
 	.query_rt_values = mlx5_query_rt_values,
+	.drv_set_legacy_xrc = mlx5_set_legacy_xrc,
+	.drv_get_legacy_xrc = mlx5_get_legacy_xrc,
 };
 
 static const struct verbs_context_ops mlx5_ctx_cqev1_ops = {
@@ -430,6 +433,10 @@ static void mlx5_read_env(struct ibv_device *ibdev, struct mlx5_context *ctx)
 	env_value = getenv("MLX5_STALL_CQ_DEC_STEP");
 	if (env_value)
 		mlx5_stall_cq_dec_step = atoi(env_value);
+
+	env_value = getenv("MLX5_TRACE");
+	if (env_value && (strcmp(env_value, "0")))
+		mlx5_trace = 1;
 
 	ctx->stall_adaptive_enable = 0;
 	ctx->stall_cycles = 0;
