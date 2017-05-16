@@ -638,6 +638,21 @@ int mlx4_destroy_cq(struct ibv_cq *cq)
 	return 0;
 }
 
+void *mlx4_get_legacy_xrc(struct ibv_srq *srq)
+{
+	struct mlx4_srq	*msrq = to_msrq(srq);
+
+	return msrq->ibv_srq_legacy;
+}
+
+void mlx4_set_legacy_xrc(struct ibv_srq *srq, void *legacy_xrc_srq)
+{
+	struct mlx4_srq	*msrq = to_msrq(srq);
+
+	msrq->ibv_srq_legacy = legacy_xrc_srq;
+	return;
+}
+
 struct ibv_srq *mlx4_create_srq(struct ibv_pd *pd,
 				struct ibv_srq_init_attr *attr)
 {
@@ -650,7 +665,7 @@ struct ibv_srq *mlx4_create_srq(struct ibv_pd *pd,
 	if (attr->attr.max_wr > 1 << 16 || attr->attr.max_sge > 64)
 		return NULL;
 
-	srq = malloc(sizeof *srq);
+	srq = calloc(1, sizeof *srq);
 	if (!srq)
 		return NULL;
 
@@ -713,6 +728,9 @@ int mlx4_modify_srq(struct ibv_srq *srq,
 {
 	struct ibv_modify_srq cmd;
 
+	if (srq->handle == LEGACY_XRC_SRQ_HANDLE)
+		srq = (struct ibv_srq *)(((struct ibv_srq_legacy *) srq)->ibv_srq);
+
 	return ibv_cmd_modify_srq(srq, attr, attr_mask, &cmd, sizeof cmd);
 }
 
@@ -721,12 +739,18 @@ int mlx4_query_srq(struct ibv_srq *srq,
 {
 	struct ibv_query_srq cmd;
 
+	if (srq->handle == LEGACY_XRC_SRQ_HANDLE)
+		srq = (struct ibv_srq *)(((struct ibv_srq_legacy *) srq)->ibv_srq);
+
 	return ibv_cmd_query_srq(srq, attr, &cmd, sizeof cmd);
 }
 
 int mlx4_destroy_srq(struct ibv_srq *srq)
 {
 	int ret;
+
+	if (srq->handle == LEGACY_XRC_SRQ_HANDLE)
+		srq = (struct ibv_srq *)(((struct ibv_srq_legacy *) srq)->ibv_srq);
 
 	if (to_msrq(srq)->ext_srq)
 		return mlx4_destroy_xrc_srq(srq);
@@ -809,6 +833,10 @@ struct ibv_qp *mlx4_create_qp_ex(struct ibv_context *context,
 	if (attr->comp_mask & ~MLX4_CREATE_QP_SUP_COMP_MASK)
 		return NULL;
 
+	if (attr->qp_type == IBV_QPT_XRC && attr->recv_cq &&
+		attr->cap.max_recv_wr > 0)
+		fprintf(stderr, PFX "Warning: Legacy XRC sender should not use a recieve cq\n");
+
 	qp = calloc(1, sizeof *qp);
 	if (!qp)
 		return NULL;
@@ -826,7 +854,8 @@ struct ibv_qp *mlx4_create_qp_ex(struct ibv_context *context,
 	}
 
 	if (attr->srq || attr->qp_type == IBV_QPT_XRC_SEND ||
-	    attr->qp_type == IBV_QPT_XRC_RECV) {
+	    attr->qp_type == IBV_QPT_XRC_RECV ||
+	    attr->qp_type == IBV_QPT_XRC) {
 		attr->cap.max_recv_wr = qp->rq.wqe_cnt = attr->cap.max_recv_sge = 0;
 	} else {
 		qp->rq.wqe_cnt = align_queue_size(attr->cap.max_recv_wr);

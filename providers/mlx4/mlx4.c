@@ -259,6 +259,8 @@ static int mlx4_init_context(struct verbs_device *v_device,
 	verbs_set_ctx_op(verbs_ctx, create_cq_ex, mlx4_create_cq_ex);
 	verbs_set_ctx_op(verbs_ctx, query_device_ex, mlx4_query_device_ex);
 	verbs_set_ctx_op(verbs_ctx, query_rt_values, mlx4_query_rt_values);
+	verbs_set_ctx_op(verbs_ctx, drv_set_legacy_xrc, mlx4_set_legacy_xrc);
+	verbs_set_ctx_op(verbs_ctx, drv_get_legacy_xrc, mlx4_get_legacy_xrc);
 
 	return 0;
 

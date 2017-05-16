@@ -209,6 +209,7 @@ struct mlx4_srq {
 	uint32_t		       *db;
 	uint16_t			counter;
 	uint8_t				ext_srq;
+	struct ibv_srq_legacy *ibv_srq_legacy;
 };
 
 struct mlx4_wq {
@@ -460,4 +461,6 @@ int mlx4_alloc_av(struct mlx4_pd *pd, struct ibv_ah_attr *attr,
 		   struct mlx4_ah *ah);
 void mlx4_free_av(struct mlx4_ah *ah);
 
+void *mlx4_get_legacy_xrc(struct ibv_srq *srq);
+void mlx4_set_legacy_xrc(struct ibv_srq *srq, void *legacy_xrc_srq);
 #endif /* MLX4_H */
