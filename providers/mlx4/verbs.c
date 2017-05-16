@@ -748,12 +748,23 @@ int mlx4_query_srq(struct ibv_srq *srq,
 int mlx4_destroy_srq(struct ibv_srq *srq)
 {
 	int ret;
+	struct ibv_srq *legacy_srq = NULL;
 
-	if (srq->handle == LEGACY_XRC_SRQ_HANDLE)
+	if (srq->handle == LEGACY_XRC_SRQ_HANDLE) {
+		legacy_srq = srq;
 		srq = (struct ibv_srq *)(((struct ibv_srq_legacy *) srq)->ibv_srq);
+	}
 
-	if (to_msrq(srq)->ext_srq)
-		return mlx4_destroy_xrc_srq(srq);
+	if (to_msrq(srq)->ext_srq) {
+		ret =  mlx4_destroy_xrc_srq(srq);
+		if (ret)
+			return ret;
+
+		if (legacy_srq)
+			free(legacy_srq);
+
+		return 0;
+	}
 
 	ret = ibv_cmd_destroy_srq(srq);
 	if (ret)
