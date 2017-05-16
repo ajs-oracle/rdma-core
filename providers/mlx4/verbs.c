@@ -845,7 +845,7 @@ struct ibv_qp *mlx4_create_qp_ex(struct ibv_context *context,
 		return NULL;
 
 	if (attr->qp_type == IBV_QPT_XRC && attr->recv_cq &&
-		attr->cap.max_recv_wr > 0)
+		attr->cap.max_recv_wr > 0 && mlx4_trace)
 		fprintf(stderr, PFX "Warning: Legacy XRC sender should not use a recieve cq\n");
 
 	qp = calloc(1, sizeof *qp);
