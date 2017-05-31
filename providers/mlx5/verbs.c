@@ -152,6 +152,41 @@ struct ibv_pd *mlx5_alloc_pd(struct ibv_context *context)
 	return &pd->ibv_pd;
 }
 
+struct ibv_shpd *mlx5_alloc_shpd(struct ibv_pd *pd, uint64_t share_key,
+				 struct ibv_shpd *shpd)
+{
+	struct ibv_alloc_shpd cmd;
+	struct ibv_alloc_shpd_resp resp;
+
+	if (ibv_cmd_alloc_shpd(pd->context, pd, share_key, shpd, &cmd,
+			       sizeof cmd, &resp, sizeof resp))
+		return NULL;
+
+	return shpd;
+}
+
+struct ibv_pd *mlx5_share_pd(struct ibv_context *context, struct ibv_shpd *shpd,
+			      uint64_t share_key)
+{
+	struct ibv_share_pd       cmd;
+	struct mlx5_share_pd_resp resp;
+	struct mlx5_pd           *pd;
+
+	pd = malloc(sizeof *pd);
+	if (!pd)
+		return NULL;
+
+	if (ibv_cmd_share_pd(context, shpd, share_key, &pd->ibv_pd, &cmd,
+			     sizeof cmd, &resp.ibv_resp, sizeof resp)) {
+		free(pd);
+		return NULL;
+	}
+
+	pd->pdn = resp.pdn;
+
+	return &pd->ibv_pd;
+}
+
 int mlx5_free_pd(struct ibv_pd *pd)
 {
 	int ret;

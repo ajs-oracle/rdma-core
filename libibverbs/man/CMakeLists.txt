@@ -56,6 +56,9 @@ rdma_man_pages(
   ibv_uc_pingpong.1
   ibv_ud_pingpong.1
   ibv_xsrq_pingpong.1
+  ibv_alloc_shpd.3
+  ibv_share_pd.3
+  ibv_shpd_pingpong.1
   )
 rdma_alias_man_pages(
   ibv_alloc_mw.3 ibv_dealloc_mw.3
@@ -80,4 +83,5 @@ rdma_alias_man_pages(
   ibv_rate_to_mbps.3 mbps_to_ibv_rate.3
   ibv_rate_to_mult.3 mult_to_ibv_rate.3
   ibv_reg_mr.3 ibv_dereg_mr.3
+  ibv_alloc_shpd.3 ibv_share_pd.3
   )

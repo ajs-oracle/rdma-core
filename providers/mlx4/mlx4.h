@@ -368,6 +368,10 @@ int mlx4_query_port(struct ibv_context *context, uint8_t port,
 int mlx4_query_rt_values(struct ibv_context *context,
 			 struct ibv_values_ex *values);
 struct ibv_pd *mlx4_alloc_pd(struct ibv_context *context);
+struct ibv_shpd *mlx4_alloc_shpd(struct ibv_pd *pd, uint64_t share_key,
+				 struct ibv_shpd *shpd);
+struct ibv_pd *mlx4_share_pd(struct ibv_context *context,
+			     struct ibv_shpd *shpd, uint64_t share_key);
 int mlx4_free_pd(struct ibv_pd *pd);
 struct ibv_xrcd *mlx4_open_xrcd(struct ibv_context *context,
 				struct ibv_xrcd_init_attr *attr);

@@ -205,6 +205,29 @@ struct ibv_pd *__ibv_alloc_pd(struct ibv_context *context)
 }
 default_symver(__ibv_alloc_pd, ibv_alloc_pd);
 
+struct ibv_shpd *__ibv_alloc_shpd(struct ibv_pd *pd, uint64_t share_key,
+				  struct ibv_shpd *shpd)
+{
+
+	shpd = pd->context->ops.alloc_shpd(pd, share_key, shpd);
+
+	return shpd;
+}
+default_symver(__ibv_alloc_shpd, ibv_alloc_shpd);
+
+struct ibv_pd *__ibv_share_pd(struct ibv_context *context,
+			      struct ibv_shpd *shpd, uint64_t share_key)
+{
+	struct ibv_pd *pd;
+
+	pd = context->ops.share_pd(context, shpd, share_key);
+	if (pd)
+		pd->context = context;
+
+	return pd;
+}
+default_symver(__ibv_share_pd, ibv_share_pd);
+
 int __ibv_dealloc_pd(struct ibv_pd *pd)
 {
 	return pd->context->ops.dealloc_pd(pd);
