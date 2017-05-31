@@ -879,6 +879,7 @@ static int create_qp_ex_common(struct verbs_qp *qp,
 	cmd->user_handle = (uintptr_t)qp;
 
 	if (qp_attr->comp_mask & IBV_QP_INIT_ATTR_XRCD) {
+		/* XRC receiver side */
 		vxrcd = container_of(qp_attr->xrcd, struct verbs_xrcd, xrcd);
 		cmd->pd_handle	= vxrcd->handle;
 	} else {
@@ -897,7 +898,9 @@ static int create_qp_ex_common(struct verbs_qp *qp,
 		} else {
 			cmd->send_cq_handle = qp_attr->send_cq->handle;
 
-			if (qp_attr->qp_type != IBV_QPT_XRC_SEND) {
+			/* XRC sender doesn't have a receive cq */
+			if (qp_attr->qp_type != IBV_QPT_XRC_SEND &&
+					qp_attr->qp_type != IBV_QPT_XRC) {
 				cmd->recv_cq_handle = qp_attr->recv_cq->handle;
 				cmd->srq_handle = qp_attr->srq ? qp_attr->srq->handle :
 								 0;
@@ -911,7 +914,8 @@ static int create_qp_ex_common(struct verbs_qp *qp,
 	cmd->max_recv_sge    = qp_attr->cap.max_recv_sge;
 	cmd->max_inline_data = qp_attr->cap.max_inline_data;
 	cmd->sq_sig_all	     = qp_attr->sq_sig_all;
-	cmd->qp_type         = qp_attr->qp_type;
+	cmd->qp_type         = (qp_attr->qp_type == IBV_QPT_XRC) ?
+				IBV_QPT_XRC_SEND : qp_attr->qp_type;
 	cmd->is_srq	     = !!qp_attr->srq;
 	cmd->reserved	     = 0;
 

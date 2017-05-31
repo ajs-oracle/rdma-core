@@ -47,6 +47,8 @@
 #define PCI_VENDOR_ID_MELLANOX			0x15b3
 #endif
 
+int mlx4_trace = 0;
+
 #define HCA(v, d) \
 	{ .vendor = PCI_VENDOR_ID_##v,			\
 	  .device = d }
@@ -142,6 +144,15 @@ static int mlx4_map_internal_clock(struct mlx4_device *mdev,
 	return 0;
 }
 
+static void mlx4_read_env(struct ibv_device *ibdev, struct mlx4_context *ctx)
+{
+	char *env_value;
+
+	env_value = getenv("MLX4_TRACE");
+	if (env_value && (strcmp(env_value, "0")))
+		mlx4_trace = 1;
+}
+
 static int mlx4_init_context(struct verbs_device *v_device,
 				struct ibv_context *ibv_ctx, int cmd_fd)
 {
@@ -221,6 +232,9 @@ static int mlx4_init_context(struct verbs_device *v_device,
 		context->bf_buf_size = 0;
 	}
 
+
+	mlx4_read_env(&v_device->device, context);
+
 	pthread_spin_init(&context->uar_lock, PTHREAD_PROCESS_PRIVATE);
 	ibv_ctx->ops = mlx4_ctx_ops;
 
@@ -247,6 +261,8 @@ static int mlx4_init_context(struct verbs_device *v_device,
 	verbs_set_ctx_op(verbs_ctx, create_cq_ex, mlx4_create_cq_ex);
 	verbs_set_ctx_op(verbs_ctx, query_device_ex, mlx4_query_device_ex);
 	verbs_set_ctx_op(verbs_ctx, query_rt_values, mlx4_query_rt_values);
+	verbs_set_ctx_op(verbs_ctx, drv_set_legacy_xrc, mlx4_set_legacy_xrc);
+	verbs_set_ctx_op(verbs_ctx, drv_get_legacy_xrc, mlx4_get_legacy_xrc);
 
 	return 0;
 

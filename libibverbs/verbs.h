@@ -41,6 +41,7 @@
 #include <stddef.h>
 #include <errno.h>
 #include <string.h>
+#include <infiniband/ofa_verbs.h>
 
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
@@ -368,6 +369,8 @@ struct ibv_async_event {
 		struct ibv_srq *srq;
 		struct ibv_wq  *wq;
 		int		port_num;
+		/* For source compatible with Legacy API */
+		uint32_t	xrc_qp_num;
 	} element;
 	enum ibv_event_type	event_type;
 };
@@ -732,6 +735,8 @@ enum ibv_qp_type {
 	IBV_QPT_RC = 2,
 	IBV_QPT_UC,
 	IBV_QPT_UD,
+	/* XRC compatible code */
+	IBV_QPT_XRC,
 	IBV_QPT_RAW_PACKET = 8,
 	IBV_QPT_XRC_SEND = 9,
 	IBV_QPT_XRC_RECV
@@ -753,6 +758,8 @@ struct ibv_qp_init_attr {
 	struct ibv_qp_cap	cap;
 	enum ibv_qp_type	qp_type;
 	int			sq_sig_all;
+	/* Below is needed for backwards compatabile */
+	struct ibv_xrc_domain  *xrc_domain;
 };
 
 enum ibv_qp_init_attr_mask {
@@ -938,10 +945,13 @@ struct ibv_send_wr {
 		} ud;
 	} wr;
 	union {
-		struct {
-			uint32_t    remote_srqn;
-		} xrc;
-	} qp_type;
+		union {
+			struct {
+				uint32_t    remote_srqn;
+			} xrc;
+		} qp_type;
+		uint32_t		xrc_remote_srq_num;
+	};
 	union {
 		struct {
 			struct ibv_mw	*mw;
@@ -978,6 +988,24 @@ struct ibv_srq {
 	pthread_mutex_t		mutex;
 	pthread_cond_t		cond;
 	uint32_t		events_completed;
+
+	/* below are for source compatabilty with legacy XRC,
+	*   padding based on ibv_srq_legacy.
+	*/
+	uint32_t		xrc_srq_num_bin_compat_padding;
+	struct ibv_xrc_domain	*xrc_domain_bin_compat_padding;
+	struct ibv_cq	*xrc_cq_bin_compat_padding;
+	void		*ibv_srq_padding;
+
+	/* legacy fields */
+	uint32_t		xrc_srq_num;
+	struct ibv_xrc_domain	*xrc_domain;
+	struct ibv_cq		*xrc_cq;
+};
+
+/* Not in use in new API, needed for compilation as part of source compat layer */
+enum ibv_event_flags {
+	IBV_XRC_QP_EVENT_FLAG = 0x80000000,
 };
 
 /*
@@ -1462,6 +1490,8 @@ enum verbs_context_mask {
 
 struct verbs_context {
 	/*  "grows up" - new fields go here */
+	void * (*drv_get_legacy_xrc) (struct ibv_srq *ibv_srq);
+	void (*drv_set_legacy_xrc) (struct ibv_srq *ibv_srq, void *legacy_xrc);
 	int (*destroy_rwq_ind_table)(struct ibv_rwq_ind_table *rwq_ind_table);
 	struct ibv_rwq_ind_table *(*create_rwq_ind_table)(struct ibv_context *context,
 							  struct ibv_rwq_ind_table_init_attr *init_attr);

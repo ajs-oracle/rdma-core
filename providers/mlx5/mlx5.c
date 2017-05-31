@@ -57,6 +57,7 @@
 #define CPU_EQUAL(x, y) 1
 #endif
 
+int mlx5_trace = 0;
 
 #define HCA(v, d) \
 	{ .vendor = PCI_VENDOR_ID_##v,			\
@@ -405,6 +406,10 @@ static void mlx5_read_env(struct ibv_device *ibdev, struct mlx5_context *ctx)
 	env_value = getenv("MLX5_STALL_CQ_DEC_STEP");
 	if (env_value)
 		mlx5_stall_cq_dec_step = atoi(env_value);
+
+	env_value = getenv("MLX5_TRACE");
+	if (env_value && (strcmp(env_value, "0")))
+		mlx5_trace = 1;
 
 	ctx->stall_adaptive_enable = 0;
 	ctx->stall_cycles = 0;
@@ -906,6 +911,9 @@ static int mlx5_init_context(struct verbs_device *vdev,
 	verbs_set_ctx_op(v_ctx, destroy_wq, mlx5_destroy_wq);
 	verbs_set_ctx_op(v_ctx, create_rwq_ind_table, mlx5_create_rwq_ind_table);
 	verbs_set_ctx_op(v_ctx, destroy_rwq_ind_table, mlx5_destroy_rwq_ind_table);
+	verbs_set_ctx_op(v_ctx, drv_set_legacy_xrc, mlx5_set_legacy_xrc);
+	verbs_set_ctx_op(v_ctx, drv_get_legacy_xrc, mlx5_get_legacy_xrc);
+
 
 	memset(&device_attr, 0, sizeof(device_attr));
 	if (!mlx5_query_device_ex(ctx, NULL, &device_attr,

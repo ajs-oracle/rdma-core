@@ -185,6 +185,8 @@ struct mlx5_resource {
 	uint32_t		rsn;
 };
 
+extern int mlx5_trace;
+
 struct mlx5_device {
 	struct verbs_device	verbs_dev;
 	int			page_size;
@@ -346,6 +348,7 @@ struct mlx5_srq {
 	uint32_t		       *db;
 	uint16_t			counter;
 	int				wq_sig;
+	struct ibv_srq_legacy *ibv_srq_legacy;
 };
 
 struct wr_list {
@@ -756,5 +759,8 @@ static inline uint8_t calc_sig(void *wqe, int size)
 
 	return ~res;
 }
+
+void *mlx5_get_legacy_xrc(struct ibv_srq *srq);
+void mlx5_set_legacy_xrc(struct ibv_srq *srq, void *legacy_xrc_srq);
 
 #endif /* MLX5_H */
