@@ -183,6 +183,7 @@ enum {
 struct mlx5_resource {
 	enum mlx5_rsc_type	type;
 	uint32_t		rsn;
+	void			*metadata;
 };
 
 extern int mlx5_trace;

@@ -750,8 +750,8 @@ int mlx5_query_srq(struct ibv_srq *srq,
 int mlx5_destroy_srq(struct ibv_srq *srq)
 {
 	int ret;
-	struct mlx5_srq *msrq = to_msrq(srq);
-	struct mlx5_context *ctx = to_mctx(srq->context);
+	struct mlx5_srq *msrq;
+	struct mlx5_context *ctx;
 	struct ibv_srq *legacy_srq = NULL;
 
 	if (srq->handle == LEGACY_XRC_SRQ_HANDLE) {
@@ -762,8 +762,9 @@ int mlx5_destroy_srq(struct ibv_srq *srq)
 	ret = ibv_cmd_destroy_srq(srq);
 	if (ret)
 		return ret;
-	else if (legacy_srq)
-		free(legacy_srq);
+
+	msrq = to_msrq(srq);
+	ctx = to_mctx(srq->context);
 
 	if (ctx->cqe_version && msrq->rsc.type == MLX5_RSC_TYPE_XSRQ)
 		mlx5_clear_uidx(ctx, msrq->rsc.rsn);
@@ -774,6 +775,9 @@ int mlx5_destroy_srq(struct ibv_srq *srq)
 	mlx5_free_buf(&msrq->buf);
 	free(msrq->wrid);
 	free(msrq);
+
+	if (legacy_srq)
+		free(legacy_srq);
 
 	return 0;
 }
@@ -1932,7 +1936,7 @@ mlx5_create_xrc_srq(struct ibv_context *context,
 	msrq->srqn = resp.srqn;
 	msrq->rsc.type = MLX5_RSC_TYPE_XSRQ;
 	msrq->rsc.rsn = ctx->cqe_version ? cmd.uidx : resp.srqn;
-
+	msrq->rsc.metadata = ibsrq;
 	return ibsrq;
 
 err_destroy:
