@@ -332,10 +332,10 @@ static int use_scatter_to_cqe(void)
 	char *env;
 
 	env = getenv("MLX5_SCATTER_TO_CQE");
-	if (env && !strcmp(env, "0"))
-		return 0;
+	if (env && !strcmp(env, "1"))
+		return 1;
 
-	return 1;
+	return 0;
 }
 
 static int srq_sig_enabled(void)
