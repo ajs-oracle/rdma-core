@@ -326,7 +326,7 @@ out:
 
 static int pp_setup_shm(struct pingpong_context *ctx)
 {
-	ctx->shmid = shmget(ctx->key, ctx->shmsize, IPC_CREAT|IPC_EXCL|0666);
+	ctx->shmid = shmget(ctx->key, ctx->shmsize, IPC_CREAT|0666);
 	if (ctx->shmid == -1) {
 		fprintf(stderr, "shm with id %d already exists\n", ctx->key);
 		return 1;
@@ -460,6 +460,13 @@ static struct pingpong_context *pp_init_ctx(struct ibv_device *ib_dev, int size,
 		ctx->shpd = ctx->shm->shpd;
 		/* create pd from shared pd information we have */
 		ctx->pd = ibv_share_pd(ctx->context, &ctx->shpd, mypass);
+		if (ctx->pd == NULL) {
+			fprintf(stderr, "ibv_share_pd failed\n");
+			if (shmdt(ctx->shm))
+				fprintf(stderr, "Couldn't detach shm\n");
+			return NULL;
+		}
+
 
 		/* NOTE: some parts of ibv_mr struct is invalid in client process.
 		   only rkey & lkey is relevant
