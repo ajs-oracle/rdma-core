@@ -711,9 +711,14 @@ struct ibv_pd *mlx5_share_pd(struct ibv_context *context, struct ibv_shpd *shpd,
 
 struct ibv_mr *mlx5_reg_mr(struct ibv_pd *pd, void *addr,
 			   size_t length, int access);
+struct ibv_mr *mlx5_reg_mr_relaxed(struct ibv_pd *pd, void *addr,
+			   size_t length, int access);
 int mlx5_rereg_mr(struct ibv_mr *mr, int flags, struct ibv_pd *pd, void *addr,
 		  size_t length, int access);
 int mlx5_dereg_mr(struct ibv_mr *mr);
+int mlx5_dereg_mr_relaxed(struct ibv_mr *mr);
+int mlx5_flush_relaxed_mr(struct ibv_pd *pd);
+
 struct ibv_mw *mlx5_alloc_mw(struct ibv_pd *pd, enum ibv_mw_type);
 int mlx5_dealloc_mw(struct ibv_mw *mw);
 int mlx5_bind_mw(struct ibv_qp *qp, struct ibv_mw *mw,
