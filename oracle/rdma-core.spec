@@ -1,6 +1,6 @@
 Name: rdma-core
 Version: 17.1
-Release: 1%{?dist}
+Release: 1.0.1%{?dist}
 Summary: RDMA core userspace libraries and daemons
 
 # Almost everything is licensed under the OFA dual GPLv2, 2 Clause BSD license
@@ -449,3 +449,7 @@ rm -rf %{buildroot}/%{_sbindir}/srp_daemon.sh
 %{_mandir}/man5/srp_daemon.service.5*
 %{_mandir}/man5/srp_daemon_port@.service.5*
 %doc %{_docdir}/%{name}-%{version}/ibsrpdm.md
+
+%changelog
+* Wed Mar 14 2018 Aron Silverton <aron.silverton@oracle.com> - 17.1-1.0.1
+- Initial release for Oracle (Aron Silverton) [Orabug: 26829960]
