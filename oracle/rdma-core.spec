@@ -25,6 +25,9 @@ BuildRequires: python
 
 Requires: dracut, kmod, systemd
 
+# Set minimum kernel version for Oracle UEK5
+Requires: kernel-uek >= 4.14.14-11
+
 # Oracle previously shipped oracle/ as a stand-alone
 # package called 'rdma', which we're supplanting here.
 Provides: rdma = %{version}-%{release}
