@@ -700,6 +700,11 @@ int mlx5_query_port(struct ibv_context *context, uint8_t port,
 struct ibv_pd *mlx5_alloc_pd(struct ibv_context *context);
 int mlx5_free_pd(struct ibv_pd *pd);
 
+#ifndef WITHOUT_ORACLE_EXTENSIONS
+struct ibv_shpd *mlx5_alloc_shpd(struct ibv_pd *pd, uint64_t share_key, struct ibv_shpd *shpd);
+struct ibv_pd *mlx5_share_pd(struct ibv_context *context, struct ibv_shpd *shpd, uint64_t share_key);
+#endif /* !WITHOUT_ORACLE_EXTENSIONS */
+
 struct ibv_mr *mlx5_reg_mr(struct ibv_pd *pd, void *addr,
 			   size_t length, int access);
 int mlx5_rereg_mr(struct ibv_mr *mr, int flags, struct ibv_pd *pd, void *addr,

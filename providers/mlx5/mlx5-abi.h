@@ -142,6 +142,14 @@ struct mlx5_alloc_pd_resp {
 	__u32				pdn;
 };
 
+#ifndef WITHOUT_ORACLE_EXTENSIONS
+struct mlx5_share_pd_resp {
+	struct ib_uverbs_share_pd_resp	ibv_resp;
+	__u32				pdn;
+	__u32				reserved;
+};
+#endif /* !WITHOUT_ORACLE_EXTENSIONS */
+
 enum mlx5_create_cq_flags {
 	MLX5_CREATE_CQ_FLAGS_CQE_128B_PAD	= 1 << 0,
 };
