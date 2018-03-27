@@ -70,6 +70,14 @@ struct mlx4_alloc_pd_resp {
 	__u32				reserved;
 };
 
+#ifndef WITHOUT_ORACLE_EXTENSIONS
+struct mlx4_share_pd_resp {
+	struct ib_uverbs_share_pd_resp	ibv_resp;
+	__u32				pdn;
+	__u32				reserved;
+};
+#endif /* !WITHOUT_ORACLE_EXTENSIONS */
+
 struct mlx4_create_cq {
 	struct ibv_create_cq		ibv_cmd;
 	__u64				buf_addr;
