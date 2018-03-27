@@ -110,6 +110,26 @@ struct ibv_dealloc_pd {
 	__u32 pd_handle;
 };
 
+#ifndef WITHOUT_ORACLE_EXTENSIONS
+
+struct ibv_alloc_shpd {
+	struct ib_uverbs_cmd_hdr hdr;
+	__u64 response;
+	__u32 pd_handle;
+	__u32 reserved;
+	__u64 share_key;
+};
+
+struct ibv_share_pd {
+	struct ib_uverbs_cmd_hdr hdr;
+	__u64 response;
+	__u32 shpd_handle;
+	__u32 reserved;
+	__u64 share_key;
+};
+
+#endif /* !WITHOUT_ORACLE_EXTENSIONS */
+
 struct ibv_open_xrcd {
 	struct ib_uverbs_cmd_hdr hdr;
 	__u64 response;
