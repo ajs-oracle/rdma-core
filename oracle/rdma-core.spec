@@ -1,4 +1,9 @@
+%define uek2epoch 2
+%define uek4epoch 4
+%define uek5epoch 5
+
 Name: rdma-core
+Epoch: %{uek5epoch} 
 Version: 17.1
 Release: 1.0.1%{?dist}
 Summary: RDMA core userspace libraries and daemons
@@ -30,8 +35,8 @@ Requires: kernel-uek >= 4.14.14-11
 
 # Oracle previously shipped oracle/ as a stand-alone
 # package called 'rdma', which we're supplanting here.
-Provides: rdma = %{version}-%{release}
-Obsoletes: rdma < %{version}-%{release}
+Provides: rdma = %{uek5epoch}:%{version}-%{release}
+#Obsoletes: rdma < %{uek5epoch}:%{version}-%{release}
 Conflicts: infiniband-diags <= 1.6.7
 
 # Since we recommend developers use Ninja, so should packagers, for consistency.
@@ -56,19 +61,19 @@ scripts, dracut rules, and the rdma-ndd utility.
 
 %package devel
 Summary: RDMA core development libraries and headers
-Requires: %{name}%{?_isa} = %{version}-%{release}
-Requires: libibverbs = %{version}-%{release}
-Provides: libibverbs-devel = %{version}-%{release}
-Obsoletes: libibverbs-devel < %{version}-%{release}
-Requires: libibumad = %{version}-%{release}
-Provides: libibumad-devel = %{version}-%{release}
-Obsoletes: libibumad-devel < %{version}-%{release}
-Requires: librdmacm = %{version}-%{release}
-Provides: librdmacm-devel = %{version}-%{release}
-Obsoletes: librdmacm-devel < %{version}-%{release}
-Requires: ibacm = %{version}-%{release}
-Provides: ibacm-devel = %{version}-%{release}
-Obsoletes: ibacm-devel < %{version}-%{release}
+Requires: %{name}%{?_isa} = %{uek5epoch}:%{version}-%{release}
+Requires: libibverbs = %{uek5epoch}:%{version}-%{release}
+Provides: libibverbs-devel = %{uek5epoch}:%{version}-%{release}
+#Obsoletes: libibverbs-devel < %{uek5epoch}:%{version}-%{release}
+Requires: libibumad = %{uek5epoch}:%{version}-%{release}
+Provides: libibumad-devel = %{uek5epoch}:%{version}-%{release}
+#Obsoletes: libibumad-devel < %{uek5epoch}:%{version}-%{release}
+Requires: librdmacm = %{uek5epoch}:%{version}-%{release}
+Provides: librdmacm-devel = %{uek5epoch}:%{version}-%{release}
+#Obsoletes: librdmacm-devel < %{uek5epoch}:%{version}-%{release}
+Requires: ibacm = %{uek5epoch}:%{version}-%{release}
+Provides: ibacm-devel = %{uek5epoch}:%{version}-%{release}
+#Obsoletes: ibacm-devel < %{uek5epoch}:%{version}-%{release}
 
 %description devel
 RDMA core development libraries and headers.
@@ -77,29 +82,29 @@ RDMA core development libraries and headers.
 Summary: A library and drivers for direct userspace use of RDMA (InfiniBand/iWARP/RoCE) hardware
 Requires(post): /sbin/ldconfig
 Requires(postun): /sbin/ldconfig
-Requires: %{name}%{?_isa} = %{version}-%{release}
-Provides: libcxgb3 = %{version}-%{release}
-Obsoletes: libcxgb3 < %{version}-%{release}
-Provides: libcxgb4 = %{version}-%{release}
-Obsoletes: libcxgb4 < %{version}-%{release}
-Provides: libhfi1 = %{version}-%{release}
-Obsoletes: libhfi1 < %{version}-%{release}
-Provides: libi40iw = %{version}-%{release}
-Obsoletes: libi40iw < %{version}-%{release}
-Provides: libipathverbs = %{version}-%{release}
-Obsoletes: libipathverbs < %{version}-%{release}
-Provides: libmlx4 = %{version}-%{release}
-Obsoletes: libmlx4 < %{version}-%{release}
-Provides: libmlx5 = %{version}-%{release}
-Obsoletes: libmlx5 < %{version}-%{release}
-Provides: libmthca = %{version}-%{release}
-Obsoletes: libmthca < %{version}-%{release}
-Provides: libnes = %{version}-%{release}
-Obsoletes: libnes < %{version}-%{release}
-Provides: libocrdma = %{version}-%{release}
-Obsoletes: libocrdma < %{version}-%{release}
-Provides: librxe = %{version}-%{release}
-Obsoletes: librxe < %{version}-%{release}
+Requires: %{name}%{?_isa} = %{uek5epoch}:%{version}-%{release}
+Provides: libcxgb3 = %{uek5epoch}:%{version}-%{release}
+Obsoletes: libcxgb3 < %{uek5epoch}:%{version}-%{release}
+Provides: libcxgb4 = %{uek5epoch}:%{version}-%{release}
+Obsoletes: libcxgb4 < %{uek5epoch}:%{version}-%{release}
+Provides: libhfi1 = %{uek5epoch}:%{version}-%{release}
+Obsoletes: libhfi1 < %{uek5epoch}:%{version}-%{release}
+Provides: libi40iw = %{uek5epoch}:%{version}-%{release}
+Obsoletes: libi40iw < %{uek5epoch}:%{version}-%{release}
+Provides: libipathverbs = %{uek5epoch}:%{version}-%{release}
+Obsoletes: libipathverbs < %{uek5epoch}:%{version}-%{release}
+Provides: libmlx4 = %{uek5epoch}:%{version}-%{release}
+#Obsoletes: libmlx4 < %{uek5epoch}:%{version}-%{release}
+Provides: libmlx5 = %{uek5epoch}:%{version}-%{release}
+#Obsoletes: libmlx5 < %{uek5epoch}:%{version}-%{release}
+Provides: libmthca = %{uek5epoch}:%{version}-%{release}
+Obsoletes: libmthca < %{uek5epoch}:%{version}-%{release}
+Provides: libnes = %{uek5epoch}:%{version}-%{release}
+Obsoletes: libnes < %{uek5epoch}:%{version}-%{release}
+Provides: libocrdma = %{uek5epoch}:%{version}-%{release}
+Obsoletes: libocrdma < %{uek5epoch}:%{version}-%{release}
+Provides: librxe = %{uek5epoch}:%{version}-%{release}
+Obsoletes: librxe < %{uek5epoch}:%{version}-%{release}
 
 %description -n libibverbs
 libibverbs is a library that allows userspace processes to use RDMA
@@ -127,7 +132,7 @@ Device-specific plug-in ibverbs userspace drivers are included:
 
 %package -n libibverbs-utils
 Summary: Examples for the libibverbs library
-Requires: libibverbs%{?_isa} = %{version}-%{release}
+Requires: libibverbs%{?_isa} = %{uek5epoch}:%{version}-%{release}
 
 %description -n libibverbs-utils
 Useful libibverbs example programs such as ibv_devinfo, which
@@ -138,7 +143,7 @@ Summary: InfiniBand Communication Manager Assistant
 Requires(post): systemd-units
 Requires(preun): systemd-units
 Requires(postun): systemd-units
-Requires: %{name}%{?_isa} = %{version}-%{release}
+Requires: %{name}%{?_isa} = %{uek5epoch}:%{version}-%{release}
 
 %description -n ibacm
 The ibacm daemon helps reduce the load of managing path record lookups on
@@ -155,7 +160,7 @@ Summary: iWarp Port Mapper userspace daemon
 Requires(post): systemd-units
 Requires(preun): systemd-units
 Requires(postun): systemd-units
-Requires: %{name}%{?_isa} = %{version}-%{release}
+Requires: %{name}%{?_isa} = %{uek5epoch}:%{version}-%{release}
 
 %description -n iwpmd
 iwpmd provides a userspace service for iWarp drivers to claim
@@ -163,7 +168,7 @@ tcp ports through the standard socket interface.
 
 %package -n libibumad
 Summary: OpenFabrics Alliance InfiniBand umad (userspace management datagram) library
-Requires: %{name}%{?_isa} = %{version}-%{release}
+Requires: %{name}%{?_isa} = %{uek5epoch}:%{version}-%{release}
 
 %description -n libibumad
 libibumad provides the userspace management datagram (umad) library
@@ -172,14 +177,14 @@ are used by the IB diagnostic and management tools, including OpenSM.
 
 %package -n librdmacm
 Summary: Userspace RDMA Connection Manager
-Requires: %{name}%{?_isa} = %{version}-%{release}
+Requires: %{name}%{?_isa} = %{uek5epoch}:%{version}-%{release}
 
 %description -n librdmacm
 librdmacm provides a userspace RDMA Communication Management API.
 
 %package -n librdmacm-utils
 Summary: Examples for the librdmacm library
-Requires: librdmacm%{?_isa} = %{version}-%{release}
+Requires: librdmacm%{?_isa} = %{uek5epoch}:%{version}-%{release}
 
 %description -n librdmacm-utils
 Example test programs for the librdmacm library.
@@ -187,12 +192,12 @@ Example test programs for the librdmacm library.
 %package -n srp_daemon
 Summary: Tools for using the InfiniBand SRP protocol devices
 Obsoletes: srptools <= 1.0.3
-Provides: srptools = %{version}-%{release}
+Provides: srptools = %{uek5epoch}:%{version}-%{release}
 Obsoletes: openib-srptools <= 0.0.6
 Requires(post): systemd-units
 Requires(preun): systemd-units
 Requires(postun): systemd-units
-Requires: %{name}%{?_isa} = %{version}-%{release}
+Requires: %{name}%{?_isa} = %{uek5epoch}:%{version}-%{release}
 
 %description -n srp_daemon
 In conjunction with the kernel ib_srp driver, srp_daemon allows you to
@@ -451,5 +456,8 @@ rm -rf %{buildroot}/%{_sbindir}/srp_daemon.sh
 %doc %{_docdir}/%{name}-%{version}/ibsrpdm.md
 
 %changelog
+* Wed Mar 28 2018 Aron Silverton <aron.silverton@oracle.com> - 17.1
+- Add Epoch to package versioning and adjust Obsoletes (Aron Silverton) [Orabug: 27774601]
+
 * Wed Mar 14 2018 Aron Silverton <aron.silverton@oracle.com> - 17.1-1.0.1
 - Initial release for Oracle (Aron Silverton) [Orabug: 26829960]
