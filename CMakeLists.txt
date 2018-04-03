@@ -26,6 +26,11 @@
 #      Do not generate backwards compatibility symbols in the shared
 #      libraries. This may is necessary if using a dynmic linker that does
 #      not support symbol versions, such as uclibc.
+#  -DIBACM_SERVER_MODE_DEFAULT (default unix)
+#      Selects how clients can connect to this server:
+#      open) Allow incoming connections from any TCP client (internal or external).
+#      loop) Limit incoming connections for server_port to 127.0.0.1.
+#      unix) Use unix-domain sockets, hence limits service to the same machine.
 
 cmake_minimum_required(VERSION 2.8.11 FATAL_ERROR)
 project(rdma-core C)
@@ -433,6 +438,16 @@ RDMA_AddOptCFlag(CMAKE_C_FLAGS HAVE_C_WREDUNDANT_DECLS "-Wredundant-decls")
 # directory. For developer convenience
 if (NOT ${CMAKE_CURRENT_BINARY_DIR} STREQUAL ${CMAKE_CURRENT_SOURCE_DIR})
   file(WRITE ${CMAKE_BINARY_DIR}/.gitignore "*")
+endif()
+
+# Configuration defaults
+
+if ("${IBACM_SERVER_MODE_DEFAULT}" STREQUAL "open")
+  set(IBACM_SERVER_MODE_DEFAULT "IBACM_SERVER_MODE_OPEN")
+elseif ("${IBACM_SERVER_MODE_DEFAULT}" STREQUAL "loop")
+  set(IBACM_SERVER_MODE_DEFAULT "IBACM_SERVER_MODE_LOOP")
+else()
+  set(IBACM_SERVER_MODE_DEFAULT "IBACM_SERVER_MODE_UNIX")
 endif()
 
 configure_file("${BUILDLIB}/config.h.in" "${BUILD_INCLUDE}/config.h" ESCAPE_QUOTES @ONLY)
