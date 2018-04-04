@@ -49,6 +49,8 @@ struct ibv_abi_compat_v2 {
 	pthread_mutex_t		in_use;
 };
 
+extern int is_uek4_or_older_linux;
+extern int uek_abi_ver;
 extern int abi_ver;
 extern const struct verbs_context_ops verbs_dummy_ops;
 

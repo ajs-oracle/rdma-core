@@ -43,6 +43,7 @@
 #include <sys/types.h>
 #include <sys/time.h>
 #include <sys/resource.h>
+#include <sys/utsname.h>
 #include <dirent.h>
 #include <errno.h>
 #include <assert.h>
@@ -51,6 +52,8 @@
 #include <util/util.h>
 #include "ibverbs.h"
 
+int is_uek4_or_older_linux;
+int uek_abi_ver;
 int abi_ver;
 
 struct ibv_driver_name {
@@ -520,6 +523,42 @@ static struct verbs_device *try_drivers(struct verbs_sysfs_dev *sysfs_dev)
 static int check_abi_version(const char *path)
 {
 	char value[8];
+
+	if (ibv_read_sysfs_file(path, "class/infiniband_verbs/uek_abi_version",
+				value, sizeof value) >= 0) {
+		uek_abi_ver = strtol(value, NULL, 10);
+
+		is_uek4_or_older_linux = uek_abi_ver < 1;
+	} else {
+#ifndef WITHOUT_UEK5_TEMPORARY_DETECTION
+		struct utsname utsname;
+
+		uek_abi_ver = 0;
+
+		if (uname(&utsname) == 0 &&
+		    strcasecmp(utsname.sysname, "Linux") == 0) {
+			char *cp;
+			long linux_version, linux_patchlevel;
+
+			linux_version = strtol(utsname.release, &cp, 10);
+			if (*cp == '.') {
+				linux_patchlevel = strtol(cp + 1, &cp, 10);
+
+				is_uek4_or_older_linux =
+					*cp == '.' &&
+					( linux_version < 4 ||
+					  ( linux_version == 4 && linux_patchlevel <= 1 )) &&
+					( strstr(cp, ".el6uek.") ||
+					  strstr(cp, ".el7uek."));
+			} else
+				is_uek4_or_older_linux = 0;
+		} else
+			is_uek4_or_older_linux = 0;
+#else /* WITHOUT_UEK5_TEMPORARY_DETECTION */
+		uek_abi_ver = 0;
+		is_uek4_or_older_linux = 1;
+#endif /* WITHOUT_UEK5_TEMPORARY_DETECTION */
+	}
 
 	if (ibv_read_sysfs_file(path, "class/infiniband_verbs/abi_version",
 				value, sizeof value) < 0) {

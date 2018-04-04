@@ -152,6 +152,13 @@ struct ibv_reg_mr {
 	__u32 access_flags;
 };
 
+struct ibv_reg_mr_resp_uek4 {
+	__u32 mr_handle;
+	__u32 lkey;
+	__u32 rkey;
+	__u32 reserved; /* UEK4 padding introduced by Orabug 20930262 */
+};
+
 struct ibv_rereg_mr {
 	struct ib_uverbs_cmd_hdr hdr;
 	__u64 response;
