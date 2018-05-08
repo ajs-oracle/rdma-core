@@ -342,6 +342,9 @@ struct mlx5_pd {
 	uint32_t			pdn;
 	atomic_int			refcount;
 	struct mlx5_pd			*mprotection_domain;
+#ifndef WITHOUT_ORACLE_EXTENSIONS
+       uint8_t				is_inherited; /* e.g. via ibv_share_pd */
+#endif /* !WITHOUT_ORACLE_EXTENSIONS */
 };
 
 struct mlx5_parent_domain {

@@ -401,6 +401,8 @@ struct ibv_pd *mlx5_share_pd(struct ibv_context *context, struct ibv_shpd *shpd,
 	atomic_init(&pd->refcount, 1);
 	pd->pdn = resp.pdn;
 
+	pd->is_inherited = 1;
+
 	return &pd->ibv_pd;
 }
 
@@ -1771,8 +1773,19 @@ static struct ibv_qp *create_qp(struct ibv_context *context,
 	if (qp->wq_sig)
 		cmd.flags |= MLX5_QP_FLAG_SIGNATURE;
 
+#ifndef WITHOUT_ORACLE_EXTENSIONS
+
+	if ((!(attr->comp_mask & IBV_QP_INIT_ATTR_PD) ||
+	     !to_mpd(attr->pd)->is_inherited) &&
+	    use_scatter_to_cqe())
+		cmd.flags |= MLX5_QP_FLAG_SCATTER_CQE;
+
+#else /* WITHOUT_ORACLE_EXTENSIONS */
+
 	if (use_scatter_to_cqe())
 		cmd.flags |= MLX5_QP_FLAG_SCATTER_CQE;
+
+#endif /* WITHOUT_ORACLE_EXTENSIONS */
 
 	ret = mlx5_calc_wq_size(ctx, attr, qp);
 	if (ret < 0) {
