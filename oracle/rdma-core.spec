@@ -5,7 +5,7 @@
 Name: rdma-core
 Epoch: %{uek5epoch} 
 Version: 17.1
-Release: 1.0.1%{?dist}
+Release: 1.0.2%{?dist}
 Summary: RDMA core userspace libraries and daemons
 
 # Almost everything is licensed under the OFA dual GPLv2, 2 Clause BSD license
@@ -456,6 +456,19 @@ rm -rf %{buildroot}/%{_sbindir}/srp_daemon.sh
 %doc %{_docdir}/%{name}-%{version}/ibsrpdm.md
 
 %changelog
+* Mon May 21 2018 Aron Silverton <aron.silverton@oracle.com> - 5:17.1-1.0.2
+- init: Load RDS when starting rdma service (Aron Silverton) [Orabug: 27003153]
+- libibverbs: Add Shared PD (Gerd Rausch) [Orabug: 28036886, 26440016]
+- libibverbs: Add XRC Compatibility Layer (Ajaykumar Hotchandani) [Orabug: 28037496]
+- libibverbs: Add Userlevel FMR (Ajaykumar Hotchandani) [Orabug: 26547655, 27594079, 26547698]
+- libibverbs(libmlx4): Disable Blueflame conditionally for MLX4 (Qing Huang) [Orabug: 28042759]
+- libibverbs(libmlx5): Disable MLX5_QP_FLAG_SCATTER_CQE for Shared-PD (Gerd Rausch) [Orabug: 27949058]
+- libibverbs: Detect uek_abi_version and UEK4 compatibility in libibverbs (Gerd Rausch) [Orabug: 28035740]
+- init: Load Resilient RDMA IP module when staring rdma service (Sudhakar Dindukurti) [Orabug: 27740657]
+- ibacm: (backport) Fix "empty port provider causes segfault" (Aron Silverton) [Orabug: 27859350]
+- ibacm: (backport) Add "server_mode" and "acme_plus_kernel_only" options (Aron Silverton) [Orabug: 28058392]
+- spec: Add Epoch to package versioning and adjust Obsoletes (Aron Silverton) [Orabug: 27774601]
+
 * Wed Mar 28 2018 Aron Silverton <aron.silverton@oracle.com> - 17.1
 - Add Epoch to package versioning and adjust Obsoletes (Aron Silverton) [Orabug: 27774601]
 
