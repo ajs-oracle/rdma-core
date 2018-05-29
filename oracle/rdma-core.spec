@@ -446,6 +446,7 @@ rm -rf %{buildroot}/%{_sbindir}/srp_daemon.sh
 %changelog
 * Mon Aug 27 2018 Aron Silverton <aron.silverton@oracle.com> - 5:17.1
 - oracle: Reconfigure buildrpm for GIT_PROD_START build rule (Aron Silverton) [Orabug: 28557808]
+- ibacm: Ignore "acme_plus_kernel_only" when using systemd (Gerd Rausch) [Orabug: 28079081]
 
 * Fri Jul 06 2018 Aron Silverton <aron.silverton@oracle.com> - 5:17.1
 - spec: Use Ninja (ninja-build) for building (Aron Silverton) [Orabug: 28305731]
