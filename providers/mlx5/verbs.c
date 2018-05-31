@@ -1048,7 +1048,7 @@ int mlx5_query_srq(struct ibv_srq *srq,
 int mlx5_destroy_srq(struct ibv_srq *srq)
 {
 	int ret;
-	struct mlx5_srq *msrq = to_msrq(srq);
+	struct mlx5_srq *msrq;
 	struct mlx5_context *ctx = to_mctx(srq->context);
 	struct ibv_srq *legacy_srq = NULL;
 
@@ -1056,6 +1056,8 @@ int mlx5_destroy_srq(struct ibv_srq *srq)
 		legacy_srq = srq;
 		srq = (struct ibv_srq *)(((struct ibv_srq_legacy *) srq)->ibv_srq);
 	}
+
+	msrq = to_msrq(srq);
 
 	if (msrq->cmd_qp) {
 		ret = mlx5_destroy_qp(msrq->cmd_qp);
