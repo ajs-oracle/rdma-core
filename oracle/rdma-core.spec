@@ -269,19 +269,15 @@ install -D -m0644 ibacm_opts.cfg %{buildroot}%{_sysconfdir}/rdma/
 rm -rf %{buildroot}/%{_initrddir}/
 rm -rf %{buildroot}/%{_sbindir}/srp_daemon.sh
 
-# libibverbs
 %post -n libibverbs -p /sbin/ldconfig
 %postun -n libibverbs -p /sbin/ldconfig
 
-# libibumad
 %post -n libibumad -p /sbin/ldconfig
 %postun -n libibumad -p /sbin/ldconfig
 
-# librdmacm
 %post -n librdmacm -p /sbin/ldconfig
 %postun -n librdmacm -p /sbin/ldconfig
 
-# ibacm
 %post -n ibacm
 %systemd_post ibacm.service
 %preun -n ibacm
@@ -289,7 +285,6 @@ rm -rf %{buildroot}/%{_sbindir}/srp_daemon.sh
 %postun -n ibacm
 %systemd_postun_with_restart ibacm.service
 
-# srp_daemon
 %post -n srp_daemon
 %systemd_post srp_daemon.service
 %preun -n srp_daemon
@@ -297,7 +292,6 @@ rm -rf %{buildroot}/%{_sbindir}/srp_daemon.sh
 %postun -n srp_daemon
 %systemd_postun_with_restart srp_daemon.service
 
-# iwpmd
 %post -n iwpmd
 %systemd_post iwpmd.service
 %preun -n iwpmd
@@ -456,6 +450,9 @@ rm -rf %{buildroot}/%{_sbindir}/srp_daemon.sh
 %doc %{_docdir}/%{name}-%{version}/ibsrpdm.md
 
 %changelog
+* Wed Jun 27 2018 Aron Silverton <aron.silverton@oracle.com> - 5:17.1
+- spec: Fix ldconfig warnings when uninstalling (Aron Silverton) [Orabug: 28146600]
+
 * Mon May 21 2018 Aron Silverton <aron.silverton@oracle.com> - 5:17.1-1.0.2
 - init: Load RDS when starting rdma service (Aron Silverton) [Orabug: 27003153]
 - libibverbs: Add Shared PD (Gerd Rausch) [Orabug: 28036886, 26440016]
