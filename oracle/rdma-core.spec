@@ -5,7 +5,7 @@
 Name: rdma-core
 Epoch: %{uek5epoch} 
 Version: 17.1
-Release: 1.0.2%{?dist}
+Release: 1.0.3%{?dist}
 Summary: RDMA core userspace libraries and daemons
 
 # Almost everything is licensed under the OFA dual GPLv2, 2 Clause BSD license
@@ -450,11 +450,9 @@ rm -rf %{buildroot}/%{_sbindir}/srp_daemon.sh
 %doc %{_docdir}/%{name}-%{version}/ibsrpdm.md
 
 %changelog
-* Fri Jun 29 2018 Aron Silverton <aron.silverton@oracle.com> - 5:17.1
-- libibverbs(libmlx5): Dereference LEGACY_XRC srq objects (Gerd Rausch) [Orabug: 28064897]
-
-* Wed Jun 27 2018 Aron Silverton <aron.silverton@oracle.com> - 5:17.1
+* Fri Jun 29 2018 Aron Silverton <aron.silverton@oracle.com> - 5:17.1-1.0.3
 - spec: Fix ldconfig warnings when uninstalling (Aron Silverton) [Orabug: 28146600]
+- libibverbs(libmlx5): Dereference LEGACY_XRC srq objects (Gerd Rausch) [Orabug: 28064897]
 
 * Mon May 21 2018 Aron Silverton <aron.silverton@oracle.com> - 5:17.1-1.0.2
 - init: Load RDS when starting rdma service (Aron Silverton) [Orabug: 27003153]
