@@ -40,19 +40,13 @@ Provides: rdma = %{uek5epoch}:%{version}-%{release}
 Conflicts: infiniband-diags <= 1.6.7
 
 # Since we recommend developers use Ninja, so should packagers, for consistency.
+# Oracle Linux 7 does not ship Ninja so the build system must be configured to
+# enable the EPEL repo.
 %define CMAKE_FLAGS %{nil}
-%if 0%{?fedora} >= 23
-# Ninja was introduced in FC23
 BuildRequires: ninja-build
 %define CMAKE_FLAGS -GNinja
 %define make_jobs ninja-build -v %{?_smp_mflags}
 %define cmake_install DESTDIR=%{buildroot} ninja-build install
-%else
-# Fallback to make otherwise
-BuildRequires: make
-%define make_jobs make -v %{?_smp_mflags}
-%define cmake_install DESTDIR=%{buildroot} make install
-%endif
 
 %description
 RDMA core userspace infrastructure and documentation, including initialization
@@ -450,6 +444,9 @@ rm -rf %{buildroot}/%{_sbindir}/srp_daemon.sh
 %doc %{_docdir}/%{name}-%{version}/ibsrpdm.md
 
 %changelog
+* Fri Jul 06 2018 Aron Silverton <aron.silverton@oracle.com> - 5:17.1
+- spec: Use Ninja (ninja-build) for building (Aron Silverton) [Orabug: 28305731]
+
 * Fri Jun 29 2018 Aron Silverton <aron.silverton@oracle.com> - 5:17.1-1.0.3
 - spec: Fix ldconfig warnings when uninstalling (Aron Silverton) [Orabug: 28146600]
 - libibverbs(libmlx5): Dereference LEGACY_XRC srq objects (Gerd Rausch) [Orabug: 28064897]
