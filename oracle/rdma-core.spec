@@ -2,11 +2,13 @@
 %define uek4epoch 4
 %define uek5epoch 5
 
+%global flavor vos
+
 Name: rdma-core
 Epoch: %{uek5epoch} 
 Version: 17.1
-Release: 1.0.3%{?dist}
-Summary: RDMA core userspace libraries and daemons
+Release: 1.0.3%{?dist}%{?flavor}
+Summary: RDMA core userspace libraries and daemons (Oracle VOS)
 
 # Almost everything is licensed under the OFA dual GPLv2, 2 Clause BSD license
 #  providers/ipathverbs/ Dual licensed using a BSD license with an extra patent clause
@@ -53,6 +55,9 @@ RDMA core userspace infrastructure and documentation, including initialization
 scripts, kernel driver-specific modprobe override configs, IPoIB network
 scripts, dracut rules, and the rdma-ndd utility.
 
+For use on Oracle Linux systems running the Oracle Database Virtual OS
+(VOS) layer.
+
 %package devel
 Summary: RDMA core development libraries and headers
 Requires: %{name}%{?_isa} = %{uek5epoch}:%{version}-%{release}
@@ -71,6 +76,9 @@ Provides: ibacm-devel = %{uek5epoch}:%{version}-%{release}
 
 %description devel
 RDMA core development libraries and headers.
+
+For use on Oracle Linux systems running the Oracle Database Virtual OS
+(VOS) layer.
 
 %package -n libibverbs
 Summary: A library and drivers for direct userspace use of RDMA (InfiniBand/iWARP/RoCE) hardware
@@ -124,6 +132,9 @@ Device-specific plug-in ibverbs userspace drivers are included:
 - librxe: A software implementation of the RoCE protocol
 - libvmw_pvrdma: VMware paravirtual RDMA device
 
+For use on Oracle Linux systems running the Oracle Database Virtual OS
+(VOS) layer.
+
 %package -n libibverbs-utils
 Summary: Examples for the libibverbs library
 Requires: libibverbs%{?_isa} = %{uek5epoch}:%{version}-%{release}
@@ -131,6 +142,9 @@ Requires: libibverbs%{?_isa} = %{uek5epoch}:%{version}-%{release}
 %description -n libibverbs-utils
 Useful libibverbs example programs such as ibv_devinfo, which
 displays information about RDMA devices.
+
+For use on Oracle Linux systems running the Oracle Database Virtual OS
+(VOS) layer.
 
 %package -n ibacm
 Summary: InfiniBand Communication Manager Assistant
@@ -149,6 +163,9 @@ user applications need not know about this daemon as long as their app
 uses librdmacm to handle connection bring up/tear down.  The librdmacm
 library knows how to talk directly to the ibacm daemon to retrieve data.
 
+For use on Oracle Linux systems running the Oracle Database Virtual OS
+(VOS) layer.
+
 %package -n iwpmd
 Summary: iWarp Port Mapper userspace daemon
 Requires(post): systemd-units
@@ -160,6 +177,9 @@ Requires: %{name}%{?_isa} = %{uek5epoch}:%{version}-%{release}
 iwpmd provides a userspace service for iWarp drivers to claim
 tcp ports through the standard socket interface.
 
+For use on Oracle Linux systems running the Oracle Database Virtual OS
+(VOS) layer.
+
 %package -n libibumad
 Summary: OpenFabrics Alliance InfiniBand umad (userspace management datagram) library
 Requires: %{name}%{?_isa} = %{uek5epoch}:%{version}-%{release}
@@ -169,6 +189,9 @@ libibumad provides the userspace management datagram (umad) library
 functions, which sit on top of the umad modules in the kernel. These
 are used by the IB diagnostic and management tools, including OpenSM.
 
+For use on Oracle Linux systems running the Oracle Database Virtual OS
+(VOS) layer.
+
 %package -n librdmacm
 Summary: Userspace RDMA Connection Manager
 Requires: %{name}%{?_isa} = %{uek5epoch}:%{version}-%{release}
@@ -176,12 +199,18 @@ Requires: %{name}%{?_isa} = %{uek5epoch}:%{version}-%{release}
 %description -n librdmacm
 librdmacm provides a userspace RDMA Communication Management API.
 
+For use on Oracle Linux systems running the Oracle Database Virtual OS
+(VOS) layer.
+
 %package -n librdmacm-utils
 Summary: Examples for the librdmacm library
 Requires: librdmacm%{?_isa} = %{uek5epoch}:%{version}-%{release}
 
 %description -n librdmacm-utils
 Example test programs for the librdmacm library.
+
+For use on Oracle Linux systems running the Oracle Database Virtual OS
+(VOS) layer.
 
 %package -n srp_daemon
 Summary: Tools for using the InfiniBand SRP protocol devices
@@ -196,6 +225,9 @@ Requires: %{name}%{?_isa} = %{uek5epoch}:%{version}-%{release}
 %description -n srp_daemon
 In conjunction with the kernel ib_srp driver, srp_daemon allows you to
 discover and use SCSI devices via the SCSI RDMA Protocol over InfiniBand.
+
+For use on Oracle Linux systems running the Oracle Database Virtual OS
+(VOS) layer.
 
 %prep
 %setup
@@ -445,11 +477,10 @@ rm -rf %{buildroot}/%{_sbindir}/srp_daemon.sh
 
 %changelog
 * Mon Aug 27 2018 Aron Silverton <aron.silverton@oracle.com> - 5:17.1
+- spec: Use Ninja (ninja-build) for building (Aron Silverton) [Orabug: 28305731]
 - oracle: Reconfigure buildrpm for GIT_PROD_START build rule (Aron Silverton) [Orabug: 28557808]
 - ibacm: Ignore "acme_plus_kernel_only" when using systemd (Gerd Rausch) [Orabug: 28079081]
-
-* Fri Jul 06 2018 Aron Silverton <aron.silverton@oracle.com> - 5:17.1
-- spec: Use Ninja (ninja-build) for building (Aron Silverton) [Orabug: 28305731]
+- spec: Add "vos" to RPM release number (Aron Silverton) [Orabug 28550856]
 
 * Fri Jun 29 2018 Aron Silverton <aron.silverton@oracle.com> - 5:17.1-1.0.3
 - spec: Fix ldconfig warnings when uninstalling (Aron Silverton) [Orabug: 28146600]
