@@ -7,7 +7,7 @@
 Name: rdma-core
 Epoch: %{uek5epoch} 
 Version: 17.1
-Release: 1.0.3%{?dist}%{?flavor}
+Release: 1.0.4%{?dist}%{?flavor}
 Summary: RDMA core userspace libraries and daemons (Oracle VOS)
 
 # Almost everything is licensed under the OFA dual GPLv2, 2 Clause BSD license
@@ -476,7 +476,7 @@ rm -rf %{buildroot}/%{_sbindir}/srp_daemon.sh
 %doc %{_docdir}/%{name}-%{version}/ibsrpdm.md
 
 %changelog
-* Mon Aug 27 2018 Aron Silverton <aron.silverton@oracle.com> - 5:17.1
+* Mon Aug 27 2018 Aron Silverton <aron.silverton@oracle.com> - 5:17.1-1.0.4
 - spec: Use Ninja (ninja-build) for building (Aron Silverton) [Orabug: 28305731]
 - oracle: Reconfigure buildrpm for GIT_PROD_START build rule (Aron Silverton) [Orabug: 28557808]
 - ibacm: Ignore "acme_plus_kernel_only" when using systemd (Gerd Rausch) [Orabug: 28079081]
