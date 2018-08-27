@@ -1,1 +1,0 @@
-../../oracle/rdma-core.spec
