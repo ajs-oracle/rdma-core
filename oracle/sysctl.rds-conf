@@ -1,0 +1,5 @@
+# kernel tuning for RDS
+
+# Orabug: 28338460
+net.rds.ib.max_recv_wr = 256    # default = 1024
+net.rds.ib.max_send_wr = 128    # default = 256
